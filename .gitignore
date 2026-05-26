@@ -1,5 +1,6 @@
 # Kubernetes config
 .kube/
+.kimi/
 
 # Python
 __pycache__/

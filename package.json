@@ -1,6 +1,6 @@
 {
   "name": "k8s-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A Model Context Protocol (MCP) server for Kubernetes with 270+ tools, 8 resources, and 8 prompts for AI assistants",
   "keywords": [
     "kubernetes",

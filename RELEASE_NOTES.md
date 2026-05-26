@@ -36,7 +36,7 @@ npm install -g k8s-mcp@0.1.2
 
 ---
 
-## k8s-mcp v0.1.1
+## k8s-mcp v0.1.2
 
 ### Breaking Changes
 - Migrated from `setup.py` to `pyproject.toml`
@@ -65,6 +65,6 @@ k8s-mcp call           # -> k8s-mcp-ctl call
 
 ### Install
 ```bash
-pip install k8s-mcp==0.1.1
-npm install -g k8s-mcp@0.1.1
+pip install k8s-mcp==0.1.2
+npm install -g k8s-mcp@0.1.2
 ```
