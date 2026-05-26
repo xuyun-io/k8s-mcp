@@ -90,6 +90,8 @@ from k8s_mcp.server.tools import (
     register_vind_tools,
     register_kind_tools,
     register_custom_resource_tools,
+    register_prometheus_tools,
+    register_namespace_lifecycle_tools,
 )
 from k8s_mcp.server.resources import register_resources
 from k8s_mcp.server.prompts import register_prompts
@@ -349,6 +351,12 @@ class MCPServer:
 
         register_custom_resource_tools(self.server, self.non_destructive)
         logger.debug("Custom resource discovery tools registered (5 tools)")
+
+        register_prometheus_tools(self.server, self.non_destructive)
+        logger.debug("Prometheus query tools registered (2 tools)")
+
+        register_namespace_lifecycle_tools(self.server, self.non_destructive)
+        logger.debug("Namespace lifecycle tools registered (2 tools)")
 
     def setup_resources(self):
         """Set up MCP resources for Kubernetes data exposure."""
