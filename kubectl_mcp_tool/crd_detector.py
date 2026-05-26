@@ -1,4 +1,4 @@
-"""CRD Auto-Discovery Framework for kubectl-mcp-server.
+"""CRD Auto-Discovery Framework for k8s-mcp.
 
 Detects installed CRDs in the cluster and enables/disables toolsets accordingly.
 """

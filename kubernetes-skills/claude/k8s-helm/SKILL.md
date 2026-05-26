@@ -3,7 +3,7 @@ name: k8s-helm
 description: Manage Helm charts, releases, and repositories. Use for Helm installations, upgrades, rollbacks, chart development, and release management.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 16
   category: workloads

@@ -3,7 +3,7 @@ name: k8s-rollouts
 description: Progressive delivery with Argo Rollouts and Flagger. Use when implementing canary deployments, blue-green deployments, or traffic shifting strategies.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 11
   category: delivery

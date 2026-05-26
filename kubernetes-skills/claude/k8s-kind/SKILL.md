@@ -3,7 +3,7 @@ name: k8s-kind
 description: Manage kind (Kubernetes IN Docker) local clusters. Use when creating, testing, or developing with local Kubernetes clusters in Docker containers.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 32
   category: development

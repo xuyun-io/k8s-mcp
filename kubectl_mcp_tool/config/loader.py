@@ -1,8 +1,8 @@
 """Configuration loader with TOML support, drop-in directories, and SIGHUP reload.
 
 This module handles:
-- Loading main config from ~/.config/kubectl-mcp-server/config.toml
-- Merging drop-in configs from ~/.config/kubectl-mcp-server/config.d/*.toml
+- Loading main config from ~/.config/k8s-mcp/config.toml
+- Merging drop-in configs from ~/.config/k8s-mcp/config.d/*.toml
 - Environment variable overrides
 - SIGHUP signal handling for runtime reloads
 """
@@ -55,7 +55,7 @@ def get_config_paths() -> Dict[str, Path]:
     else:
         base_dir = Path.home() / ".config"
 
-    config_dir = base_dir / "kubectl-mcp-server"
+    config_dir = base_dir / "k8s-mcp"
 
     return {
         "config_dir": config_dir,
@@ -221,8 +221,8 @@ def load_config(
 
     Loading order (later takes precedence):
     1. Default values
-    2. Main config file (~/.config/kubectl-mcp-server/config.toml)
-    3. Drop-in files (~/.config/kubectl-mcp-server/config.d/*.toml) in sorted order
+    2. Main config file (~/.config/k8s-mcp/config.toml)
+    3. Drop-in files (~/.config/k8s-mcp/config.d/*.toml) in sorted order
     4. Custom config file (if specified)
     5. Environment variables (unless skip_env=True)
 

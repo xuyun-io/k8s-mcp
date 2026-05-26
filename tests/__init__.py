@@ -1,5 +1,5 @@
 """
-Test suite for kubectl-mcp-server.
+Test suite for k8s-mcp.
 
 This package contains comprehensive tests for:
 - MCP Tools (80+ Kubernetes operations)

@@ -1,5 +1,5 @@
 """
-Unit tests for MCP Resources in kubectl-mcp-server.
+Unit tests for MCP Resources in k8s-mcp.
 
 This module tests all FastMCP 3 resources including:
 - kubeconfig:// resources

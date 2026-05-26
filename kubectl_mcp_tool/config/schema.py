@@ -1,4 +1,4 @@
-"""Configuration schema definitions for kubectl-mcp-server.
+"""Configuration schema definitions for k8s-mcp.
 
 Defines dataclasses for type-safe configuration with validation.
 """
@@ -86,7 +86,7 @@ class MetricsConfig:
     # Tracing settings
     tracing_enabled: bool = False
     otlp_endpoint: Optional[str] = None
-    service_name: str = "kubectl-mcp-server"
+    service_name: str = "k8s-mcp"
     sample_rate: float = 1.0
 
     def __post_init__(self):

@@ -1,4 +1,4 @@
-"""Shared utilities for kubectl-mcp-server tools."""
+"""Shared utilities for k8s-mcp tools."""
 
 import subprocess
 import json

@@ -3,7 +3,7 @@ name: k8s-deploy
 description: Deploy and manage Kubernetes workloads with progressive delivery. Use for deployments, rollouts, blue-green, canary releases, scaling, and release management.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 20
   category: workloads

@@ -3,7 +3,7 @@ name: k8s-cli
 description: kubectl-mcp-server CLI commands for tool discovery, direct invocation, and diagnostics. Use when exploring available tools, calling tools from command line, or checking server health.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 0
   category: tooling

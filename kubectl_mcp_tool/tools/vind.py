@@ -1,4 +1,4 @@
-"""vind (vCluster in Docker) toolset for kubectl-mcp-server.
+"""vind (vCluster in Docker) toolset for k8s-mcp.
 
 vind enables running Kubernetes clusters directly as Docker containers,
 combining vCluster with Docker's simplicity. Uses the standard vCluster CLI.

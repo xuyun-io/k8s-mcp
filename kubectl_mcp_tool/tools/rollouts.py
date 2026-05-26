@@ -1,4 +1,4 @@
-"""Argo Rollouts and Flagger progressive delivery toolset for kubectl-mcp-server."""
+"""Argo Rollouts and Flagger progressive delivery toolset for k8s-mcp."""
 
 import subprocess
 import json

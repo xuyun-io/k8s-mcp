@@ -3,7 +3,7 @@ name: k8s-cost
 description: Optimize Kubernetes costs through resource right-sizing, unused resource detection, and cluster efficiency analysis. Use for cost optimization, resource analysis, and capacity planning.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 8
   category: observability

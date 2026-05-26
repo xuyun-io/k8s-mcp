@@ -1,5 +1,5 @@
 """
-Prometheus metrics for kubectl-mcp-server.
+Prometheus metrics for k8s-mcp.
 
 Provides standard Prometheus format metrics for production monitoring.
 
@@ -88,7 +88,7 @@ try:
 except ImportError:
     logger.debug(
         "prometheus_client not installed. Prometheus metrics disabled. "
-        "Install with: pip install kubectl-mcp-server[observability]"
+        "Install with: pip install k8s-mcp[observability]"
     )
 
 
@@ -201,7 +201,7 @@ def get_metrics() -> str:
     if not _prometheus_available:
         return (
             "# Prometheus metrics not available.\n"
-            "# Install with: pip install kubectl-mcp-server[observability]\n"
+            "# Install with: pip install k8s-mcp[observability]\n"
         )
 
     try:

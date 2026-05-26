@@ -1,5 +1,5 @@
 """
-Unit tests for all MCP tools in kubectl-mcp-server.
+Unit tests for all MCP tools in k8s-mcp.
 
 This module contains comprehensive tests for all Kubernetes tools
 provided by the MCP server.

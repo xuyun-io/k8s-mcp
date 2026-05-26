@@ -28,9 +28,9 @@ function main() {
 
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`
-kubectl-mcp-server - MCP Server for Kubernetes
+k8s-mcp - MCP Server for Kubernetes
 
-Usage: kubectl-mcp-server [options]
+Usage: k8s-mcp [options]
 
 Options:
   --transport <mode>       Transport: stdio, sse, http, streamable-http (default: stdio)
@@ -46,13 +46,13 @@ Options:
   --help, -h               Show this help message
   --version, -v            Show version
 
-For more info: https://github.com/rohitg00/kubectl-mcp-server
+For more info: https://github.com/xuyun-io/k8s-mcp
 `);
     process.exit(0);
   }
 
   if (args.includes('--version') || args.includes('-v')) {
-    console.log(`kubectl-mcp-server v${require('../package.json').version}`);
+    console.log(`k8s-mcp v${require('../package.json').version}`);
     process.exit(0);
   }
 
@@ -63,9 +63,9 @@ For more info: https://github.com/rohitg00/kubectl-mcp-server
   }
 
   if (!checkPythonPackage(pythonCmd)) {
-    log('Installing kubectl-mcp-tool...', 'yellow');
-    if (spawnSync(pythonCmd, ['-m', 'pip', 'install', 'kubectl-mcp-tool'], { stdio: 'inherit' }).status !== 0) {
-      log('Failed to install. Try: pip install kubectl-mcp-tool', 'red');
+    log('Installing k8s-mcp...', 'yellow');
+    if (spawnSync(pythonCmd, ['-m', 'pip', 'install', 'k8s-mcp'], { stdio: 'inherit' }).status !== 0) {
+      log('Failed to install. Try: pip install k8s-mcp', 'red');
       process.exit(1);
     }
     log('Installed successfully!', 'green');

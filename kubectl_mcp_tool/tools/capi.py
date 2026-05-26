@@ -1,4 +1,4 @@
-"""Cluster API (CAPI) toolset for kubectl-mcp-server."""
+"""Cluster API (CAPI) toolset for k8s-mcp."""
 
 import subprocess
 import json

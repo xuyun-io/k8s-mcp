@@ -33,17 +33,17 @@
     "claude",
     "ai"
   ],
-  "author": "Rohit Ghumare <ghumare64@gmail.com>",
+  "author": "kubestar <1851616111@qq.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rohitg00/kubectl-mcp-server.git",
+    "url": "https://github.com/xuyun-io/k8s-mcp.git",
     "directory": "kubectl-mcp-app"
   },
   "bugs": {
-    "url": "https://github.com/rohitg00/kubectl-mcp-server/issues"
+    "url": "https://github.com/xuyun-io/k8s-mcp/issues"
   },
-  "homepage": "https://github.com/rohitg00/kubectl-mcp-server/tree/main/kubectl-mcp-app#readme",
+  "homepage": "https://github.com/xuyun-io/k8s-mcp/tree/main/kubectl-mcp-app#readme",
   "engines": {
     "node": ">=18.0.0"
   },

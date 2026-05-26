@@ -1,5 +1,5 @@
 """
-Custom prompt loading and rendering system for kubectl-mcp-server.
+Custom prompt loading and rendering system for k8s-mcp.
 
 Supports user-defined workflow prompts via TOML configuration file with
 Mustache-style template syntax ({{variable}}) and conditional sections.

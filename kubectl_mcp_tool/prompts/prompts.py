@@ -1,5 +1,5 @@
 """
-MCP prompts registration for kubectl-mcp-server.
+MCP prompts registration for k8s-mcp.
 
 This module handles registration of both built-in and custom prompts.
 Custom prompts can be loaded from a TOML configuration file.

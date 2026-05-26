@@ -1,4 +1,4 @@
-"""GitOps toolset for kubectl-mcp-server (Flux and Argo CD)."""
+"""GitOps toolset for k8s-mcp (Flux and Argo CD)."""
 
 import json
 from typing import Dict, Any, List

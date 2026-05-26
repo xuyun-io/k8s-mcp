@@ -222,7 +222,7 @@ class TestCliCommands:
         """Test that --help works."""
         from kubectl_mcp_tool.cli.cli import main
 
-        with patch.object(sys, 'argv', ['kubectl-mcp-server', '--help']):
+        with patch.object(sys, 'argv', ['k8s-mcp', '--help']):
             with pytest.raises(SystemExit) as exc_info:
                 main()
             # argparse exits with 0 for --help

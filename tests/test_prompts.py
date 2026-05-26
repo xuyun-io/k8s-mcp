@@ -1,5 +1,5 @@
 """
-Unit tests for MCP Prompts in kubectl-mcp-server.
+Unit tests for MCP Prompts in k8s-mcp.
 
 This module tests all FastMCP 3 prompts including:
 - troubleshoot_workload

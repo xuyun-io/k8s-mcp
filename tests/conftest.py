@@ -1,5 +1,5 @@
 """
-Pytest configuration and shared fixtures for kubectl-mcp-server tests.
+Pytest configuration and shared fixtures for k8s-mcp tests.
 """
 
 import pytest

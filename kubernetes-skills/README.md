@@ -66,7 +66,7 @@ name: k8s-troubleshoot
 description: Debug Kubernetes pods, nodes, and workloads...
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 15
   category: observability

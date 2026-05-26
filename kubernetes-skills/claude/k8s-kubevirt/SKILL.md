@@ -3,7 +3,7 @@ name: k8s-kubevirt
 description: Virtual machine management with KubeVirt on Kubernetes. Use when creating, managing, or troubleshooting VMs running on Kubernetes clusters.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 13
   category: virtualization

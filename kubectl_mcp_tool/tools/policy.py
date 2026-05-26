@@ -1,4 +1,4 @@
-"""Policy toolset for kubectl-mcp-server (Kyverno and Gatekeeper)."""
+"""Policy toolset for k8s-mcp (Kyverno and Gatekeeper)."""
 
 import json
 from typing import Dict, Any, List, Optional

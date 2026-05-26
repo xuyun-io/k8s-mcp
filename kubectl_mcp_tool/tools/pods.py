@@ -1,5 +1,5 @@
 """
-Pod management tools for kubectl-mcp-server.
+Pod management tools for k8s-mcp.
 
 All tools support multi-cluster operations via the optional 'context' parameter.
 """

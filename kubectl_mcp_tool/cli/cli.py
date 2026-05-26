@@ -462,21 +462,21 @@ def cmd_doctor(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="kubectl-mcp-server",
+        prog="k8s-mcp",
         description="MCP server for Kubernetes with 127+ tools, 8 resources, and 8 prompts",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  kubectl-mcp-server serve                          # Start stdio server (Claude/Cursor)
-  kubectl-mcp-server serve --transport http         # Start HTTP server
-  kubectl-mcp-server tools                          # List all tools
-  kubectl-mcp-server tools -d                       # List tools with descriptions
-  kubectl-mcp-server tools get_pods                 # Show tool schema
-  kubectl-mcp-server grep "*pod*"                   # Search for pod-related tools
-  kubectl-mcp-server call get_pods '{"namespace": "default"}'  # Call a tool
-  echo '{"namespace": "kube-system"}' | kubectl-mcp-server call get_pods
-  kubectl-mcp-server context                        # Show k8s context
-  kubectl-mcp-server doctor                         # Check dependencies
+  k8s-mcp serve                          # Start stdio server (Claude/Cursor)
+  k8s-mcp serve --transport http         # Start HTTP server
+  k8s-mcp tools                          # List all tools
+  k8s-mcp tools -d                       # List tools with descriptions
+  k8s-mcp tools get_pods                 # Show tool schema
+  k8s-mcp grep "*pod*"                   # Search for pod-related tools
+  k8s-mcp call get_pods '{"namespace": "default"}'  # Call a tool
+  echo '{"namespace": "kube-system"}' | k8s-mcp call get_pods
+  k8s-mcp context                        # Show k8s context
+  k8s-mcp doctor                         # Check dependencies
 
 Environment Variables:
   MCP_DEBUG=true           Enable debug logging
@@ -590,7 +590,7 @@ Environment Variables:
 
         elif args.command == "version":
             from .. import __version__
-            print(f"kubectl-mcp-server version {__version__}")
+            print(f"k8s-mcp version {__version__}")
 
         elif args.command == "diagnostics":
             from ..diagnostics import run_diagnostics

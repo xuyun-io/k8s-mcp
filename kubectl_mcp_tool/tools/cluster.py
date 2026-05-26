@@ -1,5 +1,5 @@
 """
-Cluster and context management tools for kubectl-mcp-server.
+Cluster and context management tools for k8s-mcp.
 
 All tools support multi-cluster operations via the optional 'context' parameter.
 """

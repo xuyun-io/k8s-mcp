@@ -18,9 +18,9 @@ keywords:
   - devops
   - automation
 maintainers:
-  - name: Rohit Ghumare
-    email: ghumare64@gmail.com
-    url: https://github.com/rohitg00
+  - name: kubestar
+    email: 1851616111@qq.com
+    url: https://github.com/xuyun-io
 annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/license: MIT

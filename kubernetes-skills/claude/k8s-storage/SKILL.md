@@ -3,7 +3,7 @@ name: k8s-storage
 description: Kubernetes storage management for PVCs, storage classes, and persistent volumes. Use when provisioning storage, managing volumes, or troubleshooting storage issues.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 3
   category: storage

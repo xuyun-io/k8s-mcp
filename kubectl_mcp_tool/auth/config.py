@@ -15,7 +15,7 @@ class AuthConfig:
     enabled: bool = False
     issuer_url: Optional[str] = None
     jwks_uri: Optional[str] = None
-    audience: str = "kubectl-mcp-server"
+    audience: str = "k8s-mcp"
     required_scopes: List[str] = field(default_factory=lambda: ["mcp:tools"])
     resource_url: Optional[str] = None
 
@@ -50,7 +50,7 @@ def get_auth_config() -> AuthConfig:
         enabled=enabled,
         issuer_url=os.environ.get("MCP_AUTH_ISSUER"),
         jwks_uri=os.environ.get("MCP_AUTH_JWKS_URI"),
-        audience=os.environ.get("MCP_AUTH_AUDIENCE", "kubectl-mcp-server"),
+        audience=os.environ.get("MCP_AUTH_AUDIENCE", "k8s-mcp"),
         required_scopes=_parse_scopes(os.environ.get("MCP_AUTH_REQUIRED_SCOPES", "mcp:tools")),
         resource_url=os.environ.get("MCP_AUTH_RESOURCE_URL"),
     )

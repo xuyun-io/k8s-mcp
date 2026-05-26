@@ -1,5 +1,5 @@
 """
-OpenTelemetry tracing for kubectl-mcp-server.
+OpenTelemetry tracing for k8s-mcp.
 
 Provides distributed tracing with OTLP export for production observability.
 
@@ -8,7 +8,7 @@ Environment Variables:
     OTEL_EXPORTER_OTLP_HEADERS: Optional headers for OTLP exporter
     OTEL_TRACES_SAMPLER: Sampler type (always_on, always_off, traceidratio, parentbased_always_on)
     OTEL_TRACES_SAMPLER_ARG: Sampler argument (e.g., 0.5 for 50% sampling)
-    OTEL_SERVICE_NAME: Service name (default: kubectl-mcp-server)
+    OTEL_SERVICE_NAME: Service name (default: k8s-mcp)
     OTEL_RESOURCE_ATTRIBUTES: Additional resource attributes
 
 Requires: opentelemetry-api, opentelemetry-sdk, opentelemetry-exporter-otlp (optional dependencies)
@@ -43,7 +43,7 @@ try:
 except ImportError:
     logger.debug(
         "OpenTelemetry not installed. Tracing disabled. "
-        "Install with: pip install kubectl-mcp-server[observability]"
+        "Install with: pip install k8s-mcp[observability]"
     )
 
 
@@ -102,7 +102,7 @@ def init_tracing(
     Initialize OpenTelemetry tracing.
 
     Args:
-        service_name: Service name (default from OTEL_SERVICE_NAME or kubectl-mcp-server)
+        service_name: Service name (default from OTEL_SERVICE_NAME or k8s-mcp)
         service_version: Service version (default from package version)
 
     Returns:
@@ -126,7 +126,7 @@ def init_tracing(
 
         # Get service name
         if service_name is None:
-            service_name = os.environ.get("OTEL_SERVICE_NAME", "kubectl-mcp-server")
+            service_name = os.environ.get("OTEL_SERVICE_NAME", "k8s-mcp")
 
         # Get service version
         if service_version is None:
@@ -216,7 +216,7 @@ def init_tracing(
 
         # Create tracer
         _tracer = trace.get_tracer(
-            "kubectl-mcp-server",
+            "k8s-mcp",
             service_version,
         )
 

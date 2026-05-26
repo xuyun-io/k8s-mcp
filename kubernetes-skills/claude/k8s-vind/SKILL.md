@@ -3,7 +3,7 @@ name: k8s-vind
 description: Manage vCluster (virtual Kubernetes clusters) instances using vind. Use when creating, managing, or operating lightweight virtual clusters for development, testing, or multi-tenancy.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 14
   category: development

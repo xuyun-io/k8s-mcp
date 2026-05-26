@@ -1,4 +1,4 @@
-"""Output formatting utilities for kubectl-mcp-server CLI."""
+"""Output formatting utilities for k8s-mcp CLI."""
 
 import json
 import os
@@ -284,7 +284,7 @@ def format_server_info(
         return json.dumps(info, indent=2)
 
     lines = [
-        bold("kubectl-mcp-server"),
+        bold("k8s-mcp"),
         "",
         f"  {cyan('Version:')}     {version}",
         f"  {cyan('Tools:')}       {tool_count}",

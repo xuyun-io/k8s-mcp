@@ -1,4 +1,4 @@
-"""KubeVirt VM lifecycle toolset for kubectl-mcp-server."""
+"""KubeVirt VM lifecycle toolset for k8s-mcp."""
 
 import subprocess
 import json

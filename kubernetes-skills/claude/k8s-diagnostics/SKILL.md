@@ -3,7 +3,7 @@ name: k8s-diagnostics
 description: Kubernetes diagnostics for metrics, health checks, resource comparisons, and cluster analysis. Use when analyzing cluster health, comparing environments, or gathering diagnostic data.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 10
   category: observability

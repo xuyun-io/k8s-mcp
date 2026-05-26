@@ -3,7 +3,7 @@ name: k8s-policy
 description: Kubernetes policy management with Kyverno and Gatekeeper. Use when enforcing security policies, validating resources, or auditing policy compliance.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 6
   category: security

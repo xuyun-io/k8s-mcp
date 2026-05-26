@@ -1,4 +1,4 @@
-"""kind (Kubernetes IN Docker) toolset for kubectl-mcp-server.
+"""kind (Kubernetes IN Docker) toolset for k8s-mcp.
 
 kind enables running local Kubernetes clusters using Docker container "nodes".
 It's a tool from Kubernetes SIG for local development and CI testing.

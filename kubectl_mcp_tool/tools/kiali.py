@@ -1,4 +1,4 @@
-"""Kiali/Istio service mesh observability toolset for kubectl-mcp-server."""
+"""Kiali/Istio service mesh observability toolset for k8s-mcp."""
 
 import subprocess
 import json

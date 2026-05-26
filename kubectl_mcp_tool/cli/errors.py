@@ -1,4 +1,4 @@
-"""Structured error handling for kubectl-mcp-server CLI."""
+"""Structured error handling for k8s-mcp CLI."""
 
 from dataclasses import dataclass
 from enum import IntEnum
@@ -46,7 +46,7 @@ def tool_not_found_error(name: str, available: Optional[List[str]] = None) -> Cl
         type="TOOL_NOT_FOUND",
         message=f'Tool "{name}" not found',
         details=f"Available: {available_str}" if available else None,
-        suggestion="Run 'kubectl-mcp-server tools' to see all available tools"
+        suggestion="Run 'k8s-mcp tools' to see all available tools"
     )
 
 
@@ -54,9 +54,9 @@ def tool_execution_error(name: str, cause: str) -> CliError:
     suggestion = "Check tool arguments match the expected schema"
 
     if "validation" in cause.lower() or "invalid" in cause.lower():
-        suggestion = f"Run 'kubectl-mcp-server tools {name}' to see the input schema"
+        suggestion = f"Run 'k8s-mcp tools {name}' to see the input schema"
     elif "required" in cause.lower():
-        suggestion = f"Missing required argument. Run 'kubectl-mcp-server tools {name}' for schema"
+        suggestion = f"Missing required argument. Run 'k8s-mcp tools {name}' for schema"
     elif "permission" in cause.lower() or "denied" in cause.lower():
         suggestion = "Permission denied. Check RBAC permissions in your cluster"
 
@@ -174,10 +174,10 @@ def invalid_json_error(input_str: str, parse_error: str) -> CliError:
 
 def missing_argument_error(command: str, argument: str) -> CliError:
     suggestions = {
-        "call": "Use 'kubectl-mcp-server call <tool> '{\"key\": \"value\"}'",
-        "tools": "Use 'kubectl-mcp-server tools <name>' to inspect a tool",
-        "grep": "Use 'kubectl-mcp-server grep \"*pattern*\"' to search tools",
-        "context": "Use 'kubectl-mcp-server context <name>' to switch context",
+        "call": "Use 'k8s-mcp call <tool> '{\"key\": \"value\"}'",
+        "tools": "Use 'k8s-mcp tools <name>' to inspect a tool",
+        "grep": "Use 'k8s-mcp grep \"*pattern*\"' to search tools",
+        "context": "Use 'k8s-mcp context <name>' to switch context",
     }
 
     return CliError(
@@ -185,7 +185,7 @@ def missing_argument_error(command: str, argument: str) -> CliError:
         type="MISSING_ARGUMENT",
         message=f"Missing required argument: {argument}",
         details=f"Command '{command}' requires {argument}",
-        suggestion=suggestions.get(command, "Run 'kubectl-mcp-server --help' for usage")
+        suggestion=suggestions.get(command, "Run 'k8s-mcp --help' for usage")
     )
 
 
@@ -211,9 +211,9 @@ def unknown_subcommand_error(subcommand: str) -> CliError:
 
     suggested = suggestions.get(subcommand.lower())
     suggestion_text = (
-        f"Did you mean 'kubectl-mcp-server {suggested}'?"
+        f"Did you mean 'k8s-mcp {suggested}'?"
         if suggested
-        else "Run 'kubectl-mcp-server --help' for available commands"
+        else "Run 'k8s-mcp --help' for available commands"
     )
 
     return CliError(

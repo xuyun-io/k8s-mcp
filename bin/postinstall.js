@@ -18,7 +18,7 @@ function getPythonCommand() {
 
 function main() {
   console.log('');
-  log('kubectl-mcp-server installed!', 'bold');
+  log('k8s-mcp installed!', 'bold');
   console.log('');
 
   const python = getPythonCommand();
@@ -30,15 +30,15 @@ function main() {
 
   console.log('');
   log('Usage:', 'cyan');
-  log('  npx kubectl-mcp-server', 'reset');
-  log('  npx kubectl-mcp-server --transport sse --port 8000', 'reset');
+  log('  npx k8s-mcp', 'reset');
+  log('  npx k8s-mcp --transport sse --port 8000', 'reset');
   console.log('');
   log('Claude Desktop config:', 'cyan');
   console.log(`  {
     "mcpServers": {
       "kubernetes": {
         "command": "npx",
-        "args": ["-y", "kubectl-mcp-server"]
+        "args": ["-y", "k8s-mcp"]
       }
     }
   }`);

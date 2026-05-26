@@ -161,7 +161,7 @@ class MCPServer:
             MCP_AUTH_ENABLED: Enable OAuth 2.1 authentication (default: false)
             MCP_AUTH_ISSUER: OAuth 2.0 Authorization Server URL
             MCP_AUTH_JWKS_URI: JWKS endpoint (optional, derived from issuer)
-            MCP_AUTH_AUDIENCE: Expected token audience (default: kubectl-mcp-server)
+            MCP_AUTH_AUDIENCE: Expected token audience (default: k8s-mcp)
             MCP_AUTH_REQUIRED_SCOPES: Required scopes (default: mcp:tools)
         """
         self.name = name

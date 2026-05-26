@@ -37,7 +37,7 @@ class TestAuthConfig:
         with patch.dict(os.environ, {}, clear=True):
             from kubectl_mcp_tool.auth.config import get_auth_config
             config = get_auth_config()
-            assert config.audience == "kubectl-mcp-server"
+            assert config.audience == "k8s-mcp"
 
     def test_auth_audience_custom(self):
         """Test custom audience value."""

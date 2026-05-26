@@ -1,5 +1,5 @@
 """
-Built-in prompts for kubectl-mcp-server.
+Built-in prompts for k8s-mcp.
 
 These prompts provide comprehensive workflows for common Kubernetes tasks.
 Users can override any of these by defining a prompt with the same name

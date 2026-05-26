@@ -1,9 +1,9 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "maintainers": ["rohitg00"],
+  "maintainers": ["kubestar"],
   "name": "kubectl-mcp-server",
   "description": "Production-ready Kubernetes MCP server with 253+ tools, 14 resources, 8 prompts for AI assistants",
-  "repository": "https://github.com/rohitg00/kubectl-mcp-server",
+  "repository": "https://github.com/xuyun-io/k8s-mcp",
   "license": "MIT",
   "runtime": "python",
   "installInstructions": {

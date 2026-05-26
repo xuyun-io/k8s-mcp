@@ -1,5 +1,5 @@
 """
-Runtime statistics collection for kubectl-mcp-server.
+Runtime statistics collection for k8s-mcp.
 
 Provides a singleton StatsCollector that tracks:
 - tool_calls_total: Total number of tool invocations

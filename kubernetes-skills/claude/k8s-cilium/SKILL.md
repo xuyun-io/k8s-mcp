@@ -3,7 +3,7 @@ name: k8s-cilium
 description: Cilium and Hubble network observability for Kubernetes. Use when managing network policies, observing traffic flows, or troubleshooting connectivity with eBPF-based networking.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 8
   category: networking

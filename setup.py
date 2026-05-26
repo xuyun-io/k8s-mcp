@@ -4,14 +4,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="kubectl-mcp-server",
-    version="1.25.0",
-    author="Rohit Ghumare",
-    author_email="ghumare64@gmail.com",
+    name="k8s-mcp",
+    version="0.1.0",
+    author="kubestar",
+    author_email="1851616111@qq.com",
     description="A Model Context Protocol (MCP) server for Kubernetes with 270+ tools, 8 resources, and 8 prompts",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/rohitg00/kubectl-mcp-server",
+    url="https://github.com/xuyun-io/k8s-mcp",
     packages=find_packages(),
     keywords=[
         "kubernetes",
@@ -51,8 +51,8 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "kubectl-mcp=kubectl_mcp_tool.__main__:main",
-            "kubectl-mcp-serve=kubectl_mcp_tool.cli:main",
+            "k8s-mcp=kubectl_mcp_tool.__main__:main",
+            "k8s-mcp-serve=kubectl_mcp_tool.cli:main",
         ],
     },
     classifiers=[
@@ -70,8 +70,8 @@ setup(
     ],
     python_requires=">=3.9",
     project_urls={
-        "Bug Tracker": "https://github.com/rohitg00/kubectl-mcp-server/issues",
-        "Documentation": "https://github.com/rohitg00/kubectl-mcp-server#readme",
-        "Source": "https://github.com/rohitg00/kubectl-mcp-server",
+        "Bug Tracker": "https://github.com/xuyun-io/k8s-mcp/issues",
+        "Documentation": "https://github.com/xuyun-io/k8s-mcp#readme",
+        "Source": "https://github.com/xuyun-io/k8s-mcp",
     },
 ) 

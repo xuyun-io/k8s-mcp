@@ -1,4 +1,4 @@
-"""Configuration management for kubectl-mcp-server.
+"""Configuration management for k8s-mcp.
 
 This module provides TOML-based configuration with:
 - Main config file support

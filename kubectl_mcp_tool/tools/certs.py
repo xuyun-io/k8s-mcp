@@ -1,4 +1,4 @@
-"""Cert-Manager toolset for kubectl-mcp-server."""
+"""Cert-Manager toolset for k8s-mcp."""
 
 import json
 from typing import Dict, Any, List, Optional

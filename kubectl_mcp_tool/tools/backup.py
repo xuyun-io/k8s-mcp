@@ -1,4 +1,4 @@
-"""Backup toolset for kubectl-mcp-server (Velero backups and restores)."""
+"""Backup toolset for k8s-mcp (Velero backups and restores)."""
 
 import subprocess
 import json

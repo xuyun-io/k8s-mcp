@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-primary:
-    name: Publish kubectl-mcp-server (primary)
+  deploy:
+    name: Publish k8s-mcp to PyPI
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -38,7 +38,7 @@ jobs:
       id: check
       run: |
         VERSION=$(python setup.py --version)
-        if pip index versions kubectl-mcp-server 2>/dev/null | grep -q "$VERSION"; then
+        if pip index versions k8s-mcp 2>/dev/null | grep -q "$VERSION"; then
           echo "exists=true" >> $GITHUB_OUTPUT
           echo "Version $VERSION already exists on PyPI, skipping publish"
         else
@@ -60,59 +60,3 @@ jobs:
         files: |
           dist/*.whl
           dist/*.tar.gz
-
-  deploy-legacy:
-    name: Publish kubectl-mcp-tool (legacy alias)
-    needs: deploy-primary
-    runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write
-      contents: write
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ github.ref }}
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build
-
-    - name: Get version from setup_legacy.py
-      id: version
-      run: |
-        VERSION=$(python setup_legacy.py --version)
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-    - name: Check if version exists on PyPI
-      id: check
-      run: |
-        VERSION=$(python setup_legacy.py --version)
-        if pip index versions kubectl-mcp-tool 2>/dev/null | grep -q "$VERSION"; then
-          echo "exists=true" >> $GITHUB_OUTPUT
-          echo "Version $VERSION already exists on PyPI, skipping publish"
-        else
-          echo "exists=false" >> $GITHUB_OUTPUT
-          echo "Version $VERSION not found, will publish"
-        fi
-
-    - name: Build legacy package
-      if: steps.check.outputs.exists != 'true'
-      run: |
-        mv setup.py setup_primary.py
-        mv setup_legacy.py setup.py
-        python -m build -o dist_legacy/
-        mv setup.py setup_legacy.py
-        mv setup_primary.py setup.py
-
-    - name: Publish legacy package to PyPI
-      if: steps.check.outputs.exists != 'true'
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        packages-dir: dist_legacy/

@@ -1,5 +1,5 @@
 """
-Safety mode implementation for kubectl-mcp-server.
+Safety mode implementation for k8s-mcp.
 
 Provides read-only and disable-destructive modes to prevent accidental cluster mutations.
 """

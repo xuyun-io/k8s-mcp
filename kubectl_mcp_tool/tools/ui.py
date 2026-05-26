@@ -1,5 +1,5 @@
 """
-MCP-UI enabled tools for kubectl-mcp-server.
+MCP-UI enabled tools for k8s-mcp.
 
 These tools return UIResource objects that can be rendered by MCP hosts
 that support the mcp-ui specification (Goose, LibreChat, Nanobot, etc.)

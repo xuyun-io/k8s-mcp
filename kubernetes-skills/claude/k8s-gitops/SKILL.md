@@ -3,7 +3,7 @@ name: k8s-gitops
 description: Manage GitOps workflows with Flux and ArgoCD. Use for sync status, reconciliation, app management, source management, and GitOps troubleshooting.
 license: Apache-2.0
 metadata:
-  author: rohitg00
+  author: kubestar
   version: "1.0.0"
   tools: 7
   category: gitops

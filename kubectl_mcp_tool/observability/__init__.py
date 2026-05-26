@@ -1,5 +1,5 @@
 """
-Observability module for kubectl-mcp-server.
+Observability module for k8s-mcp.
 
 Provides:
 - StatsCollector: Runtime statistics and metrics collection

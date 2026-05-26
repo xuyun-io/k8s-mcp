@@ -1,4 +1,4 @@
-"""KEDA autoscaling toolset for kubectl-mcp-server."""
+"""KEDA autoscaling toolset for k8s-mcp."""
 
 import json
 from typing import Dict, Any, List
