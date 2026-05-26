@@ -23,16 +23,23 @@ jobs:
       with:
         python-version: '3.11'
 
+    - name: Verify version matches release tag
+      run: |
+        CODE_VERSION=$(python setup.py --version)
+        TAG_VERSION=${GITHUB_REF_NAME#v}
+        if [ -n "$TAG_VERSION" ] && [ "$CODE_VERSION" != "$TAG_VERSION" ]; then
+          echo "Error: Version mismatch!"
+          echo "Code version (setup.py): $CODE_VERSION"
+          echo "Release tag: $TAG_VERSION"
+          echo "Please ensure the version in setup.py matches the release tag."
+          exit 1
+        fi
+        echo "Version verified: $CODE_VERSION"
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build
-
-    - name: Get version from setup.py
-      id: version
-      run: |
-        VERSION=$(python setup.py --version)
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Check if version exists on PyPI
       id: check
