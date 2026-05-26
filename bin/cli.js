@@ -17,7 +17,7 @@ function getPythonCommand() {
 
 function checkPythonPackage(pythonCmd) {
   try {
-    return spawnSync(pythonCmd, ['-c', 'import kubectl_mcp_tool'], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).status === 0;
+    return spawnSync(pythonCmd, ['-c', 'import k8s_mcp'], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).status === 0;
   } catch (e) {
     return false;
   }
@@ -30,14 +30,14 @@ function main() {
     console.log(`
 k8s-mcp - MCP Server for Kubernetes
 
-Usage: k8s-mcp [options]
+Usage: npx k8s-mcp [options]
 
 Options:
   --transport <mode>       Transport: stdio, sse, http, streamable-http (default: stdio)
   --host <host>            Host for network transports (default: 0.0.0.0)
   --port <port>            Port for network transports (default: 8000)
-  --disable-destructive    Block destructive operations (alias: --non-destructive)
-  --confirm-destructive    Require user confirmation for destructive operations
+  --disable-destructive    Block destructive operations
+  --confirm-destructive    Require confirmation for destructive operations
   --read-only              Block all write operations
   --config <path>          Path to TOML configuration file
   --stateless              Don't cache API clients, reload config each request
@@ -71,7 +71,8 @@ For more info: https://github.com/xuyun-io/k8s-mcp
     log('Installed successfully!', 'green');
   }
 
-  const server = spawn(pythonCmd, ['-m', 'kubectl_mcp_tool.mcp_server', ...args], {
+  // Use k8s-mcp-server command instead of python -m
+  const server = spawn(pythonCmd, ['-m', 'k8s_mcp.server', ...args], {
     stdio: 'inherit',
     env: { ...process.env, PYTHONUNBUFFERED: '1' }
   });
