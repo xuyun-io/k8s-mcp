@@ -1,6 +1,7 @@
-"""Namespace lifecycle management tools for k8s-mcp.
+"""Inspect tools for k8s-mcp.
 
-These tools manage namespace lifecycle annotations (active/idle status)
+These tools provide cluster and namespace inspection capabilities,
+including namespace lifecycle annotations (active/idle status)
 based on pod counts from Prometheus.
 """
 
@@ -207,10 +208,11 @@ def _build_annotations(
     return annotations
 
 
-def register_namespace_lifecycle_tools(server: "FastMCP", non_destructive: bool):
-    """Register namespace lifecycle management tools.
+def register_inspect_tools(server: "FastMCP", non_destructive: bool):
+    """Register inspect tools.
 
-    These tools manage namespace lifecycle annotations (active/idle status)
+    These tools provide cluster and namespace inspection capabilities,
+    including namespace lifecycle annotations (active/idle status)
     based on pod counts from Prometheus.
     """
 

@@ -16,7 +16,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_vind_module_imports(self):
         """Test that vind module can be imported."""
-        from kubectl_mcp_tool.tools.vind import (
+        from k8s_mcp.server.tools.vind import (
             register_vind_tools,
             _vcluster_available,
             _get_vcluster_version,
@@ -58,7 +58,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_vcluster_available_when_installed(self):
         """Test _vcluster_available returns True when CLI is installed."""
-        from kubectl_mcp_tool.tools.vind import _vcluster_available
+        from k8s_mcp.server.tools.vind import _vcluster_available
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0)
@@ -68,7 +68,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_vcluster_available_when_not_installed(self):
         """Test _vcluster_available returns False when CLI is not installed."""
-        from kubectl_mcp_tool.tools.vind import _vcluster_available
+        from k8s_mcp.server.tools.vind import _vcluster_available
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -78,7 +78,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_get_vcluster_version(self):
         """Test _get_vcluster_version extracts version correctly."""
-        from kubectl_mcp_tool.tools.vind import _get_vcluster_version
+        from k8s_mcp.server.tools.vind import _get_vcluster_version
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -91,7 +91,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_get_vcluster_version_not_installed(self):
         """Test _get_vcluster_version returns None when not installed."""
-        from kubectl_mcp_tool.tools.vind import _get_vcluster_version
+        from k8s_mcp.server.tools.vind import _get_vcluster_version
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -101,7 +101,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_run_vcluster_not_available(self):
         """Test _run_vcluster returns error when CLI not available."""
-        from kubectl_mcp_tool.tools.vind import _run_vcluster
+        from k8s_mcp.server.tools.vind import _run_vcluster
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -112,7 +112,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_run_vcluster_success(self):
         """Test _run_vcluster returns success on successful command."""
-        from kubectl_mcp_tool.tools.vind import _run_vcluster
+        from k8s_mcp.server.tools.vind import _run_vcluster
 
         with patch("subprocess.run") as mock_run:
             # First call for availability check
@@ -128,7 +128,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_run_vcluster_timeout(self):
         """Test _run_vcluster handles timeout."""
-        from kubectl_mcp_tool.tools.vind import _run_vcluster
+        from k8s_mcp.server.tools.vind import _run_vcluster
 
         with patch("subprocess.run") as mock_run:
             # First call succeeds (availability check), second times out
@@ -143,7 +143,7 @@ class TestVindHelpers:
     @pytest.mark.unit
     def test_run_vcluster_with_json_output(self):
         """Test _run_vcluster parses JSON output."""
-        from kubectl_mcp_tool.tools.vind import _run_vcluster
+        from k8s_mcp.server.tools.vind import _run_vcluster
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -162,7 +162,7 @@ class TestVindDetect:
     @pytest.mark.unit
     def test_vind_detect_installed(self):
         """Test vind_detect when vcluster is installed."""
-        from kubectl_mcp_tool.tools.vind import vind_detect
+        from k8s_mcp.server.tools.vind import vind_detect
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -178,7 +178,7 @@ class TestVindDetect:
     @pytest.mark.unit
     def test_vind_detect_not_installed(self):
         """Test vind_detect when vcluster is not installed."""
-        from kubectl_mcp_tool.tools.vind import vind_detect
+        from k8s_mcp.server.tools.vind import vind_detect
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -195,7 +195,7 @@ class TestVindListClusters:
     @pytest.mark.unit
     def test_vind_list_clusters_success(self):
         """Test vind_list_clusters returns cluster list."""
-        from kubectl_mcp_tool.tools.vind import vind_list_clusters
+        from k8s_mcp.server.tools.vind import vind_list_clusters
 
         mock_clusters = [
             {
@@ -209,8 +209,8 @@ class TestVindListClusters:
             }
         ]
 
-        with patch("kubectl_mcp_tool.tools.vind._vcluster_available", return_value=True):
-            with patch("kubectl_mcp_tool.tools.vind.subprocess.run") as mock_run:
+        with patch("k8s_mcp.server.tools.vind._vcluster_available", return_value=True):
+            with patch("k8s_mcp.server.tools.vind.subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(
                     returncode=0,
                     stdout=json.dumps(mock_clusters),
@@ -225,10 +225,10 @@ class TestVindListClusters:
     @pytest.mark.unit
     def test_vind_list_clusters_empty(self):
         """Test vind_list_clusters returns empty list."""
-        from kubectl_mcp_tool.tools.vind import vind_list_clusters
+        from k8s_mcp.server.tools.vind import vind_list_clusters
 
-        with patch("kubectl_mcp_tool.tools.vind._vcluster_available", return_value=True):
-            with patch("kubectl_mcp_tool.tools.vind.subprocess.run") as mock_run:
+        with patch("k8s_mcp.server.tools.vind._vcluster_available", return_value=True):
+            with patch("k8s_mcp.server.tools.vind.subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(
                     returncode=0,
                     stdout="[]",
@@ -245,7 +245,7 @@ class TestVindCreateCluster:
     @pytest.mark.unit
     def test_vind_create_cluster_basic(self):
         """Test vind_create_cluster with basic options."""
-        from kubectl_mcp_tool.tools.vind import vind_create_cluster
+        from k8s_mcp.server.tools.vind import vind_create_cluster
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -260,7 +260,7 @@ class TestVindCreateCluster:
     @pytest.mark.unit
     def test_vind_create_cluster_with_options(self):
         """Test vind_create_cluster with all options."""
-        from kubectl_mcp_tool.tools.vind import vind_create_cluster
+        from k8s_mcp.server.tools.vind import vind_create_cluster
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -284,7 +284,7 @@ class TestVindPauseResume:
     @pytest.mark.unit
     def test_vind_pause_success(self):
         """Test vind_pause pauses cluster."""
-        from kubectl_mcp_tool.tools.vind import vind_pause
+        from k8s_mcp.server.tools.vind import vind_pause
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -299,7 +299,7 @@ class TestVindPauseResume:
     @pytest.mark.unit
     def test_vind_resume_success(self):
         """Test vind_resume resumes cluster."""
-        from kubectl_mcp_tool.tools.vind import vind_resume
+        from k8s_mcp.server.tools.vind import vind_resume
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -318,7 +318,7 @@ class TestVindConnect:
     @pytest.mark.unit
     def test_vind_connect_success(self):
         """Test vind_connect connects to cluster."""
-        from kubectl_mcp_tool.tools.vind import vind_connect
+        from k8s_mcp.server.tools.vind import vind_connect
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -333,7 +333,7 @@ class TestVindConnect:
     @pytest.mark.unit
     def test_vind_disconnect_success(self):
         """Test vind_disconnect disconnects from cluster."""
-        from kubectl_mcp_tool.tools.vind import vind_disconnect
+        from k8s_mcp.server.tools.vind import vind_disconnect
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -351,16 +351,16 @@ class TestVindToolsRegistration:
     @pytest.mark.unit
     def test_vind_tools_import(self):
         """Test that vind tools can be imported."""
-        from kubectl_mcp_tool.tools.vind import register_vind_tools
+        from k8s_mcp.server.tools.vind import register_vind_tools
         assert callable(register_vind_tools)
 
     @pytest.mark.unit
     @pytest.mark.asyncio
     async def test_vind_tools_register(self, mock_all_kubernetes_apis):
         """Test that vind tools register correctly."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         tools = await server.server.list_tools()
@@ -389,9 +389,9 @@ class TestVindToolsRegistration:
     @pytest.mark.asyncio
     async def test_vind_tool_count(self, mock_all_kubernetes_apis):
         """Test that correct number of vind tools are registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         tools = await server.server.list_tools()
@@ -402,9 +402,9 @@ class TestVindToolsRegistration:
     @pytest.mark.unit
     def test_vind_non_destructive_mode(self, mock_all_kubernetes_apis):
         """Test that vind write operations are blocked in non-destructive mode."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test", disable_destructive=True)
 
         assert server.non_destructive is True
@@ -413,9 +413,9 @@ class TestVindToolsRegistration:
     @pytest.mark.asyncio
     async def test_vind_tools_have_descriptions(self, mock_all_kubernetes_apis):
         """Test that all vind tools have descriptions."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         tools = await server.server.list_tools()
@@ -434,8 +434,8 @@ class TestVindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_create_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that vind_create_cluster_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.vind import register_vind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.vind import register_vind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -459,8 +459,8 @@ class TestVindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_delete_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that vind_delete_cluster_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.vind import register_vind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.vind import register_vind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -484,8 +484,8 @@ class TestVindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_pause_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that vind_pause_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.vind import register_vind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.vind import register_vind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -509,7 +509,7 @@ class TestVindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_read_operations_allowed_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that read operations work in non-destructive mode."""
-        from kubectl_mcp_tool.tools.vind import register_vind_tools
+        from k8s_mcp.server.tools.vind import register_vind_tools
 
         try:
             from fastmcp import FastMCP

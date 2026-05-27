@@ -15,7 +15,7 @@ class TestCRDDetector:
     @pytest.mark.unit
     def test_crd_detector_imports(self):
         """Test that CRD detector module can be imported."""
-        from kubectl_mcp_tool.crd_detector import (
+        from k8s_mcp.server.crd_detector import (
             CRD_GROUPS,
             detect_crds,
             crd_exists,
@@ -37,7 +37,7 @@ class TestCRDDetector:
     @pytest.mark.unit
     def test_crd_groups_structure(self):
         """Test that CRD_GROUPS has expected structure."""
-        from kubectl_mcp_tool.crd_detector import CRD_GROUPS
+        from k8s_mcp.server.crd_detector import CRD_GROUPS
 
         expected_groups = ["flux", "argocd", "certmanager", "kyverno", "gatekeeper", "velero"]
         for group in expected_groups:
@@ -48,7 +48,7 @@ class TestCRDDetector:
     @pytest.mark.unit
     def test_detect_crds_with_mocked_kubectl(self):
         """Test CRD detection with mocked kubectl."""
-        from kubectl_mcp_tool.crd_detector import detect_crds, _crd_cache
+        from k8s_mcp.server.crd_detector import detect_crds, _crd_cache
 
         # Clear cache before test
         _crd_cache.clear()
@@ -71,7 +71,7 @@ certificates.cert-manager.io             2024-01-01T00:00:00Z
     @pytest.mark.unit
     def test_detect_crds_handles_kubectl_failure(self):
         """Test CRD detection handles kubectl failure gracefully."""
-        from kubectl_mcp_tool.crd_detector import detect_crds, _crd_cache
+        from k8s_mcp.server.crd_detector import detect_crds, _crd_cache
 
         _crd_cache.clear()
 
@@ -87,7 +87,7 @@ certificates.cert-manager.io             2024-01-01T00:00:00Z
     @pytest.mark.unit
     def test_feature_not_installed_error(self):
         """Test FeatureNotInstalledError exception."""
-        from kubectl_mcp_tool.crd_detector import FeatureNotInstalledError
+        from k8s_mcp.server.crd_detector import FeatureNotInstalledError
 
         error = FeatureNotInstalledError("velero", ["backups.velero.io"])
         assert "velero" in str(error)
@@ -98,7 +98,7 @@ certificates.cert-manager.io             2024-01-01T00:00:00Z
     @pytest.mark.unit
     def test_get_crd_status_summary(self):
         """Test CRD status summary generation."""
-        from kubectl_mcp_tool.crd_detector import get_crd_status_summary, _crd_cache
+        from k8s_mcp.server.crd_detector import get_crd_status_summary, _crd_cache
 
         _crd_cache.clear()
 
@@ -121,17 +121,19 @@ class TestGitOpsTools:
     @pytest.mark.unit
     def test_gitops_tools_import(self):
         """Test that GitOps tools can be imported."""
-        from kubectl_mcp_tool.tools.gitops import register_gitops_tools
+        from k8s_mcp.server.tools.gitops import register_gitops_tools
         assert callable(register_gitops_tools)
 
     @pytest.mark.unit
     def test_gitops_tools_register(self, mock_all_kubernetes_apis):
         """Test that GitOps tools register correctly."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
         import asyncio
+        import os
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
-            server = MCPServer(name="test")
+        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "gitops"}):
+            with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
+                server = MCPServer(name="test")
 
         async def get_tools():
             return await server.server.list_tools()
@@ -150,9 +152,9 @@ class TestGitOpsTools:
     @pytest.mark.unit
     def test_gitops_non_destructive_mode(self, mock_all_kubernetes_apis):
         """Test that GitOps sync is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test", disable_destructive=True)
 
         assert server.non_destructive is True
@@ -164,17 +166,19 @@ class TestCertManagerTools:
     @pytest.mark.unit
     def test_certs_tools_import(self):
         """Test that Cert-Manager tools can be imported."""
-        from kubectl_mcp_tool.tools.certs import register_certs_tools
+        from k8s_mcp.server.tools.certs import register_certs_tools
         assert callable(register_certs_tools)
 
     @pytest.mark.unit
     def test_certs_tools_register(self, mock_all_kubernetes_apis):
         """Test that Cert-Manager tools register correctly."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
         import asyncio
+        import os
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
-            server = MCPServer(name="test")
+        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "certs"}):
+            with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
+                server = MCPServer(name="test")
 
         async def get_tools():
             return await server.server.list_tools()
@@ -197,17 +201,19 @@ class TestPolicyTools:
     @pytest.mark.unit
     def test_policy_tools_import(self):
         """Test that Policy tools can be imported."""
-        from kubectl_mcp_tool.tools.policy import register_policy_tools
+        from k8s_mcp.server.tools.policy import register_policy_tools
         assert callable(register_policy_tools)
 
     @pytest.mark.unit
     def test_policy_tools_register(self, mock_all_kubernetes_apis):
         """Test that Policy tools register correctly."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
         import asyncio
+        import os
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
-            server = MCPServer(name="test")
+        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "policy"}):
+            with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
+                server = MCPServer(name="test")
 
         async def get_tools():
             return await server.server.list_tools()
@@ -229,17 +235,19 @@ class TestBackupTools:
     @pytest.mark.unit
     def test_backup_tools_import(self):
         """Test that Backup tools can be imported."""
-        from kubectl_mcp_tool.tools.backup import register_backup_tools
+        from k8s_mcp.server.tools.backup import register_backup_tools
         assert callable(register_backup_tools)
 
     @pytest.mark.unit
     def test_backup_tools_register(self, mock_all_kubernetes_apis):
         """Test that Backup tools register correctly."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
         import asyncio
+        import os
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
-            server = MCPServer(name="test")
+        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "backup"}):
+            with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
+                server = MCPServer(name="test")
 
         async def get_tools():
             return await server.server.list_tools()
@@ -259,9 +267,9 @@ class TestBackupTools:
     @pytest.mark.unit
     def test_backup_non_destructive_mode(self, mock_all_kubernetes_apis):
         """Test that backup operations are blocked in non-destructive mode."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test", disable_destructive=True)
 
         assert server.non_destructive is True
@@ -273,11 +281,13 @@ class TestEcosystemToolsIntegration:
     @pytest.mark.unit
     def test_all_ecosystem_tools_have_descriptions(self, mock_all_kubernetes_apis):
         """Test that all ecosystem tools have descriptions."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
         import asyncio
+        import os
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
-            server = MCPServer(name="test")
+        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "gitops,certs,policy,backup"}):
+            with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
+                server = MCPServer(name="test")
 
         async def get_tools():
             return await server.server.list_tools()
@@ -299,11 +309,13 @@ class TestEcosystemToolsIntegration:
     @pytest.mark.unit
     def test_ecosystem_tool_count(self, mock_all_kubernetes_apis):
         """Test that correct number of ecosystem tools are registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
         import asyncio
+        import os
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
-            server = MCPServer(name="test")
+        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "gitops,certs,policy,backup"}):
+            with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
+                server = MCPServer(name="test")
 
         async def get_tools():
             return await server.server.list_tools()

@@ -13,7 +13,7 @@ class TestServerConfig:
 
     def test_default_values(self):
         """Test default configuration values."""
-        from kubectl_mcp_tool.config.schema import ServerConfig
+        from k8s_mcp.server.config.schema import ServerConfig
 
         config = ServerConfig()
         assert config.transport == "streamable-http"
@@ -24,7 +24,7 @@ class TestServerConfig:
 
     def test_custom_values(self):
         """Test custom configuration values."""
-        from kubectl_mcp_tool.config.schema import ServerConfig
+        from k8s_mcp.server.config.schema import ServerConfig
 
         config = ServerConfig(
             transport="stdio",
@@ -41,14 +41,14 @@ class TestServerConfig:
 
     def test_invalid_transport(self):
         """Test validation rejects invalid transport."""
-        from kubectl_mcp_tool.config.schema import ServerConfig
+        from k8s_mcp.server.config.schema import ServerConfig
 
         with pytest.raises(ValueError, match="Invalid transport"):
             ServerConfig(transport="invalid")
 
     def test_invalid_port(self):
         """Test validation rejects invalid port."""
-        from kubectl_mcp_tool.config.schema import ServerConfig
+        from k8s_mcp.server.config.schema import ServerConfig
 
         with pytest.raises(ValueError, match="Invalid port"):
             ServerConfig(port=0)
@@ -62,7 +62,7 @@ class TestSafetyConfig:
 
     def test_default_values(self):
         """Test default safety configuration."""
-        from kubectl_mcp_tool.config.schema import SafetyConfig
+        from k8s_mcp.server.config.schema import SafetyConfig
 
         config = SafetyConfig()
         assert config.mode == "normal"
@@ -72,7 +72,7 @@ class TestSafetyConfig:
 
     def test_valid_modes(self):
         """Test all valid safety modes."""
-        from kubectl_mcp_tool.config.schema import SafetyConfig
+        from k8s_mcp.server.config.schema import SafetyConfig
 
         for mode in ["normal", "read-only", "disable-destructive"]:
             config = SafetyConfig(mode=mode)
@@ -80,7 +80,7 @@ class TestSafetyConfig:
 
     def test_invalid_mode(self):
         """Test validation rejects invalid mode."""
-        from kubectl_mcp_tool.config.schema import SafetyConfig
+        from k8s_mcp.server.config.schema import SafetyConfig
 
         with pytest.raises(ValueError, match="Invalid safety mode"):
             SafetyConfig(mode="invalid")
@@ -91,7 +91,7 @@ class TestBrowserConfig:
 
     def test_default_values(self):
         """Test default browser configuration."""
-        from kubectl_mcp_tool.config.schema import BrowserConfig
+        from k8s_mcp.server.config.schema import BrowserConfig
 
         config = BrowserConfig()
         assert config.enabled is False
@@ -101,7 +101,7 @@ class TestBrowserConfig:
 
     def test_valid_providers(self):
         """Test all valid browser providers."""
-        from kubectl_mcp_tool.config.schema import BrowserConfig
+        from k8s_mcp.server.config.schema import BrowserConfig
 
         for provider in ["local", "browserbase", "browseruse", "cdp"]:
             config = BrowserConfig(provider=provider)
@@ -109,7 +109,7 @@ class TestBrowserConfig:
 
     def test_invalid_provider(self):
         """Test validation rejects invalid provider."""
-        from kubectl_mcp_tool.config.schema import BrowserConfig
+        from k8s_mcp.server.config.schema import BrowserConfig
 
         with pytest.raises(ValueError, match="Invalid browser provider"):
             BrowserConfig(provider="invalid")
@@ -120,7 +120,7 @@ class TestMetricsConfig:
 
     def test_default_values(self):
         """Test default metrics configuration."""
-        from kubectl_mcp_tool.config.schema import MetricsConfig
+        from k8s_mcp.server.config.schema import MetricsConfig
 
         config = MetricsConfig()
         assert config.enabled is False
@@ -129,7 +129,7 @@ class TestMetricsConfig:
 
     def test_invalid_sample_rate(self):
         """Test validation rejects invalid sample rate."""
-        from kubectl_mcp_tool.config.schema import MetricsConfig
+        from k8s_mcp.server.config.schema import MetricsConfig
 
         with pytest.raises(ValueError, match="Invalid sample_rate"):
             MetricsConfig(sample_rate=1.5)
@@ -143,7 +143,7 @@ class TestValidateConfig:
 
     def test_valid_config(self):
         """Test validation passes for valid config."""
-        from kubectl_mcp_tool.config.schema import validate_config
+        from k8s_mcp.server.config.schema import validate_config
 
         config = {
             "server": {"transport": "stdio", "port": 8000},
@@ -156,7 +156,7 @@ class TestValidateConfig:
 
     def test_invalid_config(self):
         """Test validation catches errors."""
-        from kubectl_mcp_tool.config.schema import validate_config
+        from k8s_mcp.server.config.schema import validate_config
 
         config = {
             "server": {"transport": "invalid", "port": 0},
@@ -173,7 +173,7 @@ class TestConfigPaths:
 
     def test_default_paths(self):
         """Test default config paths."""
-        from kubectl_mcp_tool.config.loader import get_config_paths
+        from k8s_mcp.server.config.loader import get_config_paths
 
         paths = get_config_paths()
         assert "config_dir" in paths
@@ -184,7 +184,7 @@ class TestConfigPaths:
 
     def test_xdg_config_home(self):
         """Test XDG_CONFIG_HOME is respected."""
-        from kubectl_mcp_tool.config.loader import get_config_paths
+        from k8s_mcp.server.config.loader import get_config_paths
 
         with patch.dict(os.environ, {"XDG_CONFIG_HOME": "/custom/config"}):
             paths = get_config_paths()
@@ -196,7 +196,7 @@ class TestDeepMerge:
 
     def test_simple_merge(self):
         """Test simple dictionary merge."""
-        from kubectl_mcp_tool.config.loader import _deep_merge
+        from k8s_mcp.server.config.loader import _deep_merge
 
         base = {"a": 1, "b": 2}
         override = {"b": 3, "c": 4}
@@ -205,7 +205,7 @@ class TestDeepMerge:
 
     def test_nested_merge(self):
         """Test nested dictionary merge."""
-        from kubectl_mcp_tool.config.loader import _deep_merge
+        from k8s_mcp.server.config.loader import _deep_merge
 
         base = {"a": {"x": 1, "y": 2}, "b": 3}
         override = {"a": {"y": 20, "z": 30}}
@@ -213,48 +213,12 @@ class TestDeepMerge:
         assert result == {"a": {"x": 1, "y": 20, "z": 30}, "b": 3}
 
 
-class TestEnvOverrides:
-    """Test _apply_env_overrides function."""
-
-    def test_server_port_override(self):
-        """Test MCP_SERVER_PORT environment override."""
-        from kubectl_mcp_tool.config.loader import _apply_env_overrides
-
-        with patch.dict(os.environ, {"MCP_SERVER_PORT": "9000"}):
-            result = _apply_env_overrides({})
-            assert result["server"]["port"] == 9000
-
-    def test_safety_mode_override(self):
-        """Test MCP_SAFETY_MODE environment override."""
-        from kubectl_mcp_tool.config.loader import _apply_env_overrides
-
-        with patch.dict(os.environ, {"MCP_SAFETY_MODE": "read-only"}):
-            result = _apply_env_overrides({})
-            assert result["safety"]["mode"] == "read-only"
-
-    def test_browser_enabled_override(self):
-        """Test MCP_BROWSER_ENABLED environment override."""
-        from kubectl_mcp_tool.config.loader import _apply_env_overrides
-
-        with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "true"}):
-            result = _apply_env_overrides({})
-            assert result["browser"]["enabled"] is True
-
-    def test_debug_override(self):
-        """Test MCP_DEBUG environment override."""
-        from kubectl_mcp_tool.config.loader import _apply_env_overrides
-
-        with patch.dict(os.environ, {"MCP_DEBUG": "1"}):
-            result = _apply_env_overrides({})
-            assert result["server"]["debug"] is True
-
-
 class TestLoadConfig:
     """Test load_config function."""
 
     def test_load_default_config(self):
         """Test loading config with defaults."""
-        from kubectl_mcp_tool.config.loader import load_config
+        from k8s_mcp.server.config.loader import load_config
 
         config = load_config(skip_env=True)
         assert config.server.transport == "streamable-http"
@@ -264,7 +228,7 @@ class TestLoadConfig:
     def test_load_from_file(self):
         """Test loading config from TOML file."""
         pytest.importorskip("tomli", reason="tomli required for TOML parsing")
-        from kubectl_mcp_tool.config.loader import load_config
+        from k8s_mcp.server.config.loader import load_config
 
         with tempfile.NamedTemporaryFile(suffix=".toml", delete=False, mode="w") as f:
             f.write("""
@@ -287,7 +251,7 @@ mode = "read-only"
 
     def test_env_overrides_applied(self):
         """Test environment overrides are applied."""
-        from kubectl_mcp_tool.config.loader import load_config
+        from k8s_mcp.server.config.loader import load_config
 
         with patch.dict(os.environ, {"MCP_SERVER_PORT": "7777"}):
             config = load_config()
@@ -299,7 +263,7 @@ class TestGetConfig:
 
     def test_get_config_singleton(self):
         """Test get_config returns same instance."""
-        from kubectl_mcp_tool.config import loader
+        from k8s_mcp.server.config import loader
 
         # Reset global config
         loader._config = None
@@ -314,7 +278,7 @@ class TestReloadConfig:
 
     def test_reload_config(self):
         """Test configuration reload."""
-        from kubectl_mcp_tool.config import loader
+        from k8s_mcp.server.config import loader
 
         # Load initial config
         loader._config = None
@@ -327,7 +291,7 @@ class TestReloadConfig:
 
     def test_reload_callback(self):
         """Test reload callbacks are called."""
-        from kubectl_mcp_tool.config import loader
+        from k8s_mcp.server.config import loader
 
         callback_called = []
 
@@ -352,7 +316,7 @@ class TestSighupHandler:
         """Test SIGHUP handler can be installed."""
         import sys
 
-        from kubectl_mcp_tool.config.loader import setup_sighup_handler
+        from k8s_mcp.server.config.loader import setup_sighup_handler
 
         if sys.platform == "win32":
             result = setup_sighup_handler()
@@ -362,12 +326,82 @@ class TestSighupHandler:
             assert result is True
 
 
+class TestToolsConfig:
+    """Test ToolsConfig dataclass."""
+
+    def test_default_values(self):
+        """Test default tools configuration."""
+        from k8s_mcp.server.config.schema import ToolsConfig
+
+        config = ToolsConfig()
+        assert config.enabled is None
+
+    def test_custom_values(self):
+        """Test custom tools configuration."""
+        from k8s_mcp.server.config.schema import ToolsConfig
+
+        config = ToolsConfig(enabled=["core", "pod"])
+        assert config.enabled == ["core", "pod"]
+
+
+class TestEnvOverrides:
+    """Test _apply_env_overrides function."""
+
+    def test_server_port_override(self):
+        """Test MCP_SERVER_PORT environment override."""
+        from k8s_mcp.server.config.loader import _apply_env_overrides
+
+        with patch.dict(os.environ, {"MCP_SERVER_PORT": "9000"}):
+            result = _apply_env_overrides({})
+            assert result["server"]["port"] == 9000
+
+    def test_safety_mode_override(self):
+        """Test MCP_SAFETY_MODE environment override."""
+        from k8s_mcp.server.config.loader import _apply_env_overrides
+
+        with patch.dict(os.environ, {"MCP_SAFETY_MODE": "read-only"}):
+            result = _apply_env_overrides({})
+            assert result["safety"]["mode"] == "read-only"
+
+    def test_browser_enabled_override(self):
+        """Test MCP_BROWSER_ENABLED environment override."""
+        from k8s_mcp.server.config.loader import _apply_env_overrides
+
+        with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "true"}):
+            result = _apply_env_overrides({})
+            assert result["browser"]["enabled"] is True
+
+    def test_debug_override(self):
+        """Test MCP_DEBUG environment override."""
+        from k8s_mcp.server.config.loader import _apply_env_overrides
+
+        with patch.dict(os.environ, {"MCP_DEBUG": "1"}):
+            result = _apply_env_overrides({})
+            assert result["server"]["debug"] is True
+
+    def test_enable_tools_override(self):
+        """Test MCP_ENABLE_TOOLS environment override."""
+        from k8s_mcp.server.config.loader import _apply_env_overrides
+
+        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "core,pod,helm"}):
+            result = _apply_env_overrides({})
+            assert result["tools"]["enabled"] == ["core", "pod", "helm"]
+
+    def test_enable_tools_override(self):
+        """Test MCP_ENABLE_TOOLS environment override."""
+        from k8s_mcp.server.config.loader import _apply_env_overrides
+
+        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "core,pod,helm"}):
+            result = _apply_env_overrides({})
+            assert result["tools"]["enabled"] == ["core", "pod", "helm"]
+
+
 class TestConfigDataclass:
     """Test Config root dataclass."""
 
     def test_config_has_all_sections(self):
         """Test Config has all expected sections."""
-        from kubectl_mcp_tool.config.schema import Config
+        from k8s_mcp.server.config.schema import Config
 
         config = Config()
         assert hasattr(config, "server")
@@ -376,11 +410,12 @@ class TestConfigDataclass:
         assert hasattr(config, "metrics")
         assert hasattr(config, "logging")
         assert hasattr(config, "kubernetes")
+        assert hasattr(config, "tools")
         assert hasattr(config, "custom")
 
     def test_config_custom_section(self):
         """Test Config custom section for unknown keys."""
-        from kubectl_mcp_tool.config.schema import Config
+        from k8s_mcp.server.config.schema import Config
 
         config = Config(custom={"my_plugin": {"setting": "value"}})
         assert config.custom["my_plugin"]["setting"] == "value"

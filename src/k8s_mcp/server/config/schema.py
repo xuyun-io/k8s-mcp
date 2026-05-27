@@ -123,6 +123,61 @@ class KubernetesConfig:
     timeout: int = 30
 
 
+# Tool modules that are enabled by default
+DEFAULT_ENABLED_TOOL_MODULES = {
+    "core",
+}
+
+# All available tool module names
+ALL_TOOL_MODULES = {
+    "core",
+    "pod",
+    "cluster",
+    "multicluster",
+    "operations",
+    "deployment",
+    "networking",
+    "security",
+    "inspect",
+    "helm",
+    "storage",
+    "diagnostics",
+    "cost",
+    "browser",
+    "ui",
+    "gitops",
+    "certs",
+    "policy",
+    "backup",
+    "keda",
+    "cilium",
+    "rollouts",
+    "capi",
+    "kubevirt",
+    "istio",
+    "vind",
+    "kind",
+    "custom_resource",
+    "prometheus",
+}
+
+
+@dataclass
+class ToolsConfig:
+    """Tool module enable/disable configuration.
+
+    Controls which tool modules are registered at server startup.
+
+    By default, only the 'core' module is enabled.
+    All other modules must be explicitly enabled via MCP_ENABLE_TOOLS.
+
+    Environment variable:
+        MCP_ENABLE_TOOLS: Comma-separated list of modules to enable (overrides defaults)
+    """
+
+    enabled: Optional[List[str]] = None
+
+
 @dataclass
 class Config:
     """Root configuration container."""
@@ -133,6 +188,7 @@ class Config:
     metrics: MetricsConfig = field(default_factory=MetricsConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
     kubernetes: KubernetesConfig = field(default_factory=KubernetesConfig)
+    tools: ToolsConfig = field(default_factory=ToolsConfig)
 
     # Custom settings from drop-in configs
     custom: Dict[str, Any] = field(default_factory=dict)

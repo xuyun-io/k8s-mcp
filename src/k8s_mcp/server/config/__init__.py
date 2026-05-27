@@ -23,7 +23,10 @@ from .schema import (
     BrowserConfig,
     MetricsConfig,
     LoggingConfig,
+    ToolsConfig,
     validate_config,
+    DEFAULT_ENABLED_TOOL_MODULES,
+    ALL_TOOL_MODULES,
 )
 
 __all__ = [
@@ -42,5 +45,8 @@ __all__ = [
     "BrowserConfig",
     "MetricsConfig",
     "LoggingConfig",
+    "ToolsConfig",
     "validate_config",
+    "DEFAULT_ENABLED_TOOL_MODULES",
+    "ALL_TOOL_MODULES",
 ]

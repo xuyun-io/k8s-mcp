@@ -20,9 +20,9 @@ class TestKubeconfigResources:
     @pytest.mark.unit
     def test_get_kubeconfig_contexts(self, mock_kube_contexts):
         """Test listing all kubectl contexts."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -33,9 +33,9 @@ class TestKubeconfigResources:
     @pytest.mark.unit
     def test_get_current_context(self, mock_kube_contexts):
         """Test getting the current active context."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -66,9 +66,9 @@ class TestNamespaceResources:
     @pytest.mark.unit
     def test_get_current_namespace(self, mock_kube_contexts):
         """Test getting the current namespace."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -77,9 +77,9 @@ class TestNamespaceResources:
     @pytest.mark.unit
     def test_list_all_namespaces(self, mock_all_kubernetes_apis):
         """Test listing all namespaces."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         assert server is not None
@@ -110,9 +110,9 @@ class TestClusterResources:
     @pytest.mark.unit
     def test_get_cluster_info(self, mock_all_kubernetes_apis):
         """Test getting cluster info."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         assert server is not None
@@ -120,9 +120,9 @@ class TestClusterResources:
     @pytest.mark.unit
     def test_get_cluster_nodes(self, mock_all_kubernetes_apis):
         """Test getting cluster nodes."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         assert server is not None
@@ -130,9 +130,9 @@ class TestClusterResources:
     @pytest.mark.unit
     def test_get_cluster_version(self, mock_all_kubernetes_apis, mock_version_api):
         """Test getting cluster version."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         version_info = mock_version_api.get_code()
@@ -143,9 +143,9 @@ class TestClusterResources:
     @pytest.mark.unit
     def test_get_api_resources(self, mock_kubectl_subprocess):
         """Test getting API resources."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -178,9 +178,9 @@ class TestManifestResources:
     @pytest.mark.unit
     def test_get_deployment_manifest(self, mock_all_kubernetes_apis):
         """Test getting deployment manifest."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         assert server is not None
@@ -188,9 +188,9 @@ class TestManifestResources:
     @pytest.mark.unit
     def test_get_service_manifest(self, mock_all_kubernetes_apis):
         """Test getting service manifest."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         assert server is not None
@@ -198,9 +198,9 @@ class TestManifestResources:
     @pytest.mark.unit
     def test_get_configmap_manifest(self, mock_all_kubernetes_apis):
         """Test getting ConfigMap manifest."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         assert server is not None
@@ -208,9 +208,9 @@ class TestManifestResources:
     @pytest.mark.unit
     def test_get_pod_manifest(self, mock_all_kubernetes_apis):
         """Test getting pod manifest."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         assert server is not None
@@ -235,9 +235,9 @@ class TestManifestResources:
     @pytest.mark.unit
     def test_get_ingress_manifest(self, mock_all_kubernetes_apis):
         """Test getting ingress manifest."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         assert server is not None
@@ -305,9 +305,9 @@ class TestResourceRegistration:
     @pytest.mark.unit
     def test_all_resources_registered(self):
         """Test that all expected resources are registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 

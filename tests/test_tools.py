@@ -65,6 +65,10 @@ EXPECTED_TOOLS = [
     "get_namespace_cost_allocation", "optimize_resource_requests", "get_resource_usage",
     # Autoscaling (deployments.py) - 2 tools
     "get_hpa", "get_pdb",
+    # Inspect (inspect.py) - 2 tools
+    "manage_namespace_lifecycle", "get_namespace_lifecycle_status",
+    # Prometheus (prometheus.py) - 2 tools
+    "query_prometheus", "query_prometheus_range",
     # GitOps tools (gitops.py) - 7 tools
     "gitops_apps_list", "gitops_app_get", "gitops_app_sync", "gitops_app_status",
     "gitops_sources_list", "gitops_source_get", "gitops_detect_engine",
@@ -124,6 +128,9 @@ EXPECTED_TOOLS = [
     # Custom resource discovery tools (custom_resources.py) - 6 tools
     "discover_crds", "search_crds", "list_custom_resources", "get_custom_resource", "describe_crd",
     "detect_crds",
+    # UI tools (ui.py) - 6 tools
+    "show_pods_dashboard_ui", "show_pod_logs_ui", "show_cluster_overview_ui",
+    "show_resource_yaml_ui", "show_events_timeline_ui", "render_k8s_dashboard_screenshot",
 ]
 
 EXPECTED_TOOL_COUNT = len(EXPECTED_TOOLS)
@@ -136,14 +143,16 @@ class TestAllToolsRegistered:
     def test_all_tools_registered(self):
         """Verify all expected tools are registered (excluding optional browser tools)."""
         import os
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "false"}):
+        # Enable all tool modules for this test
+        all_modules = "core,pod,cluster,multicluster,operations,deployment,networking,security,inspect,helm,storage,diagnostics,cost,browser,ui,gitops,certs,policy,backup,keda,cilium,rollouts,capi,kubevirt,istio,vind,kind,custom_resource,prometheus"
+        with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "false", "MCP_ENABLE_TOOLS": all_modules}):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
 
-            with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+            with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                 with patch("kubernetes.config.load_kube_config"):
                     server = MCPServer(name="test")
 
@@ -164,7 +173,7 @@ class TestAllToolsRegistered:
     @pytest.mark.unit
     def test_tool_modules_import_correctly(self):
         """Test that all tool modules can be imported."""
-        from kubectl_mcp_tool.tools import (
+        from k8s_mcp.server.tools import (
             register_helm_tools,
             register_pod_tools,
             register_core_tools,
@@ -216,9 +225,9 @@ class TestAllToolsRegistered:
     @pytest.mark.unit
     def test_all_tools_have_descriptions(self):
         """Verify all tools have non-empty descriptions."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -237,9 +246,9 @@ class TestPodTools:
     @pytest.mark.unit
     def test_get_pods_all_namespaces(self, mock_all_kubernetes_apis):
         """Test getting pods from all namespaces."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         # Verify server initialized successfully with tools
@@ -258,8 +267,8 @@ class TestPodTools:
                 mock_pod.status.pod_ip = "10.0.0.1"
                 mock_api.return_value.list_namespaced_pod.return_value.items = [mock_pod]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
@@ -269,8 +278,8 @@ class TestPodTools:
             with patch("kubernetes.client.CoreV1Api") as mock_api:
                 mock_api.return_value.read_namespaced_pod_log.return_value = "Test log line 1\nTest log line 2"
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
@@ -285,8 +294,8 @@ class TestPodTools:
                 mock_event.message = "Successfully scheduled"
                 mock_api.return_value.list_namespaced_event.return_value.items = [mock_event]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
@@ -301,15 +310,15 @@ class TestPodTools:
                 mock_pod.status.phase = "Pending"
                 mock_api.return_value.create_namespaced_pod.return_value = mock_pod
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_run_pod_non_destructive_mode(self, mock_all_kubernetes_apis):
         """Test that run_pod is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test", disable_destructive=True)
                 # Non-destructive mode should be set via the non_destructive property
@@ -331,22 +340,22 @@ class TestDeploymentTools:
                 mock_deployment.status.ready_replicas = 3
                 mock_api.return_value.list_namespaced_deployment.return_value.items = [mock_deployment]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_scale_deployment(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test scaling a deployment."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_rollout_status(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test checking rollout status."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
 
@@ -365,8 +374,8 @@ class TestServiceTools:
                 mock_service.spec.cluster_ip = "10.96.0.1"
                 mock_api.return_value.list_namespaced_service.return_value.items = [mock_service]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
@@ -378,8 +387,8 @@ class TestServiceTools:
                 mock_endpoints.metadata.name = "test-service"
                 mock_api.return_value.read_namespaced_endpoints.return_value = mock_endpoints
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
 
@@ -396,8 +405,8 @@ class TestNamespaceTools:
                 mock_ns.status.phase = "Active"
                 mock_api.return_value.list_namespace.return_value.items = [mock_ns]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
@@ -409,8 +418,8 @@ class TestNamespaceTools:
                 mock_ns.metadata.name = "new-namespace"
                 mock_api.return_value.create_namespace.return_value = mock_ns
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
 
@@ -427,8 +436,8 @@ class TestConfigMapAndSecretTools:
                 mock_cm.data = {"key": "value"}
                 mock_api.return_value.list_namespaced_config_map.return_value.items = [mock_cm]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
@@ -441,8 +450,8 @@ class TestConfigMapAndSecretTools:
                 mock_secret.type = "Opaque"
                 mock_api.return_value.list_namespaced_secret.return_value.items = [mock_secret]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
 
@@ -459,22 +468,22 @@ class TestNodeTools:
                 mock_node.status.conditions = [MagicMock(type="Ready", status="True")]
                 mock_api.return_value.list_node.return_value.items = [mock_node]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_cordon_node(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test cordoning a node."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_drain_node(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test draining a node."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
 
@@ -484,15 +493,15 @@ class TestHelmTools:
     @pytest.mark.unit
     def test_helm_list(self, mock_helm_subprocess):
         """Test listing Helm releases."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_helm_status(self, mock_helm_subprocess):
         """Test getting Helm release status."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
 
@@ -502,15 +511,15 @@ class TestClusterTools:
     @pytest.mark.unit
     def test_cluster_info(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test getting cluster info."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_get_contexts(self, mock_kube_contexts):
         """Test getting kubectl contexts."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
 
@@ -520,15 +529,15 @@ class TestSecurityTools:
     @pytest.mark.unit
     def test_get_security_contexts(self, mock_all_kubernetes_apis):
         """Test getting security contexts."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_get_rbac_rules(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test getting RBAC rules."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
 
@@ -544,8 +553,8 @@ class TestNetworkTools:
                 mock_policy.metadata.name = "test-policy"
                 mock_api.return_value.list_namespaced_network_policy.return_value.items = [mock_policy]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
@@ -557,8 +566,8 @@ class TestNetworkTools:
                 mock_ingress.metadata.name = "test-ingress"
                 mock_api.return_value.list_namespaced_ingress.return_value.items = [mock_ingress]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
 
@@ -574,8 +583,8 @@ class TestJobAndCronJobTools:
                 mock_job.metadata.name = "test-job"
                 mock_api.return_value.list_namespaced_job.return_value.items = [mock_job]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
@@ -587,8 +596,8 @@ class TestJobAndCronJobTools:
                 mock_cronjob.metadata.name = "test-cronjob"
                 mock_api.return_value.list_namespaced_cron_job.return_value.items = [mock_cronjob]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
 
@@ -605,15 +614,15 @@ class TestStorageTools:
                 mock_pvc.status.phase = "Bound"
                 mock_api.return_value.list_namespaced_persistent_volume_claim.return_value.items = [mock_pvc]
 
-                from kubectl_mcp_tool.mcp_server import MCPServer
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                from k8s_mcp.server.core import MCPServer
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_get_storage_classes(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test getting storage classes."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
 
@@ -623,22 +632,22 @@ class TestCostOptimizationTools:
     @pytest.mark.unit
     def test_get_resource_usage(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test getting resource usage."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_get_idle_resources(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test finding idle resources."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_get_cost_analysis(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test cost analysis."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
 
@@ -648,22 +657,22 @@ class TestApplyAndDeleteTools:
     @pytest.mark.unit
     def test_kubectl_apply(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test applying YAML manifests."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_kubectl_delete(self, mock_all_kubernetes_apis, mock_kubectl_subprocess):
         """Test deleting resources."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
     @pytest.mark.unit
     def test_non_destructive_mode(self, mock_all_kubernetes_apis):
         """Test non-destructive mode blocks destructive operations."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test", disable_destructive=True)
                 result = server._check_destructive()
@@ -678,8 +687,8 @@ class TestToolAnnotations:
     @pytest.mark.unit
     def test_read_only_tools_have_annotations(self):
         """Test that read-only tools have proper annotations."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
                 # Server should initialize without errors
@@ -688,8 +697,8 @@ class TestToolAnnotations:
     @pytest.mark.unit
     def test_all_tools_have_docstrings(self):
         """Test that all tools have documentation."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
                 # Server should have tools registered
@@ -702,9 +711,9 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_handles_connection_error(self):
         """Test handling of connection errors."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config") as mock_config:
                 mock_config.side_effect = Exception("Connection refused")
                 # Server should still initialize
@@ -716,8 +725,8 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_handles_api_error(self):
         """Test handling of Kubernetes API errors."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
                 assert server is not None
@@ -725,8 +734,8 @@ class TestErrorHandling:
     @pytest.mark.unit
     def test_handles_timeout_error(self):
         """Test handling of timeout errors."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
                 assert server is not None
@@ -738,8 +747,8 @@ class TestMaskSecrets:
     @pytest.mark.unit
     def test_masks_base64_data(self):
         """Test that base64-encoded data is masked."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
                 text = "data:\n  password: c2VjcmV0UGFzc3dvcmQxMjM="
@@ -749,8 +758,8 @@ class TestMaskSecrets:
     @pytest.mark.unit
     def test_masks_password_fields(self):
         """Test that password fields are masked."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
                 text = 'password: "mysecretpassword"'
@@ -760,8 +769,8 @@ class TestMaskSecrets:
     @pytest.mark.unit
     def test_masks_token_fields(self):
         """Test that token fields are masked."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        from k8s_mcp.server.core import MCPServer
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
                 text = 'token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"'

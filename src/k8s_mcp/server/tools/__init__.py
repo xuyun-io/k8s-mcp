@@ -25,7 +25,7 @@ from .vind import register_vind_tools
 from .kind import register_kind_tools
 from .custom_resources import register_custom_resource_tools
 from .prometheus import register_prometheus_tools
-from .namespace_lifecycle import register_namespace_lifecycle_tools
+from .inspect import register_inspect_tools
 
 __all__ = [
     "register_helm_tools",
@@ -58,5 +58,5 @@ __all__ = [
     "register_kind_tools",
     "register_custom_resource_tools",
     "register_prometheus_tools",
-    "register_namespace_lifecycle_tools",
+    "register_inspect_tools",
 ]

@@ -554,6 +554,77 @@ k8s-mcp --transport streamable-http --port 8000
 | `MCP_BROWSER_CDP_URL` | Remote CDP WebSocket URL | None |
 | `MCP_BROWSER_PROXY` | Proxy server URL | None |
 
+**Tool Module Selection:**
+
+Control which tool modules are registered at server startup via the `MCP_ENABLE_TOOLS` environment variable.
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `MCP_ENABLE_TOOLS` | Comma-separated list of modules to enable | `core,pod,helm,gitops` |
+
+**Default: only `core` is enabled.**
+
+By default, the server registers only the `core` module (~12 tools for namespaces, configmaps, secrets, nodes, events, CRDs). All other modules must be explicitly enabled.
+
+**Available modules:**
+
+| Module | Tools | Description |
+|--------|-------|-------------|
+| `core` | 12 | Namespaces, ConfigMaps, Secrets, Nodes, Events, CRDs |
+| `pod` | 12 | Pod logs, exec, health, crash diagnosis, cleanup |
+| `cluster` | 25 | Context switching, cluster info, node management |
+| `multicluster` | 3 | Multi-cluster health, query, pod count |
+| `operations` | 15 | kubectl apply, patch, delete, rollout, explain |
+| `deployment` | 10 | Deployments, StatefulSets, DaemonSets, HPA, PDB |
+| `networking` | 8 | Services, Ingress, Endpoints, DNS, NetworkPolicy |
+| `security` | 10 | RBAC audit, secrets security, pod security |
+| `inspect` | 2 | Namespace lifecycle annotations, status |
+| `helm` | 35 | Helm chart management |
+| `storage` | 3 | PVCs, PersistentVolumes, StorageClasses |
+| `diagnostics` | 3 | Namespace comparison, pod/node metrics |
+| `cost` | 9 | Cost analysis, resource optimization |
+| `browser` | 3 | Browser automation (requires `MCP_BROWSER_ENABLED=true`) |
+| `ui` | 6 | Interactive HTML dashboards (requires `k8s-mcp[ui]`) |
+| `gitops` | 7 | Flux / ArgoCD GitOps tools |
+| `certs` | 9 | cert-manager certificate management |
+| `policy` | 6 | Kyverno / Gatekeeper policy tools |
+| `backup` | 11 | Velero backup and restore |
+| `keda` | 7 | KEDA autoscaling resources |
+| `cilium` | 8 | Cilium network policies and Hubble |
+| `rollouts` | 11 | Argo Rollouts / Flagger canary deployments |
+| `capi` | 11 | Cluster API cluster management |
+| `kubevirt` | 13 | KubeVirt virtual machines |
+| `istio` | 10 | Istio service mesh traffic management |
+| `vind` | 14 | vCluster virtual cluster management |
+| `kind` | 32 | kind local Kubernetes clusters |
+| `custom_resource` | 6 | CRD discovery and custom resource operations |
+| `prometheus` | 2 | Prometheus query tools |
+
+**Usage examples:**
+
+```bash
+# Minimal: only core tools (default)
+k8s-mcp
+
+# Common setup: core + pod + cluster + operations
+MCP_ENABLE_TOOLS=core,pod,cluster,operations k8s-mcp
+
+# Full-featured: enable all modules
+MCP_ENABLE_TOOLS=core,pod,cluster,multicluster,operations,deployment,networking,security,inspect,helm,storage,diagnostics,cost,gitops,certs,policy,backup,keda,cilium,rollouts,capi,kubevirt,istio,vind,kind,custom_resource,prometheus k8s-mcp
+
+# MCP Hub / stdio configuration example
+{
+  "env": {
+    "MCP_ENABLE_TOOLS": "core,pod,cluster,helm,gitops"
+  }
+}
+```
+
+**Notes:**
+- Unknown module names are logged as warnings and ignored.
+- `browser` requires `MCP_BROWSER_ENABLED=true` and `agent-browser` in PATH.
+- `ui` requires `pip install k8s-mcp[ui]`.
+
 ## Optional: Interactive Dashboards (6 UI Tools)
 
 Get beautiful HTML dashboards for visual cluster management.

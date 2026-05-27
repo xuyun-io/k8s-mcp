@@ -1,8 +1,8 @@
 import pytest
 from pydantic import ValidationError
 
-from kubectl_mcp_tool.structured import structured_response
-from kubectl_mcp_tool.schemas import (
+from k8s_mcp.server.structured import structured_response
+from k8s_mcp.server.schemas import (
     GetPodsResponse,
     GetLogsResponse,
     GetPodEventsResponse,

@@ -9,7 +9,7 @@ class TestCRDCategories:
 
     @pytest.mark.unit
     def test_all_categories_have_required_keys(self):
-        from kubectl_mcp_tool.tools.custom_resources import CRD_CATEGORIES
+        from k8s_mcp.server.tools.custom_resources import CRD_CATEGORIES
 
         assert len(CRD_CATEGORIES) == 23
         for name, info in CRD_CATEGORIES.items():
@@ -22,7 +22,7 @@ class TestCRDCategories:
 
     @pytest.mark.unit
     def test_known_crds_have_rich_descriptions(self):
-        from kubectl_mcp_tool.tools.custom_resources import CRD_CATEGORIES
+        from k8s_mcp.server.tools.custom_resources import CRD_CATEGORIES
 
         for cat_name, cat_info in CRD_CATEGORIES.items():
             for crd_name, desc in cat_info["known_crds"].items():
@@ -33,7 +33,7 @@ class TestCRDCategories:
 
     @pytest.mark.unit
     def test_expected_categories_present(self):
-        from kubectl_mcp_tool.tools.custom_resources import CRD_CATEGORIES
+        from k8s_mcp.server.tools.custom_resources import CRD_CATEGORIES
 
         expected = [
             "databases", "messaging", "certificates", "networking",
@@ -52,7 +52,7 @@ class TestClassifyCRD:
 
     @pytest.mark.unit
     def test_classify_known_crd(self):
-        from kubectl_mcp_tool.tools.custom_resources import _classify_crd
+        from k8s_mcp.server.tools.custom_resources import _classify_crd
 
         result = _classify_crd(
             "clusters.postgresql.cnpg.io", "postgresql.cnpg.io", "Cluster"
@@ -63,7 +63,7 @@ class TestClassifyCRD:
 
     @pytest.mark.unit
     def test_classify_known_kafka(self):
-        from kubectl_mcp_tool.tools.custom_resources import _classify_crd
+        from k8s_mcp.server.tools.custom_resources import _classify_crd
 
         result = _classify_crd(
             "kafkas.kafka.strimzi.io", "kafka.strimzi.io", "Kafka"
@@ -73,7 +73,7 @@ class TestClassifyCRD:
 
     @pytest.mark.unit
     def test_classify_unknown_crd_by_pattern(self):
-        from kubectl_mcp_tool.tools.custom_resources import _classify_crd
+        from k8s_mcp.server.tools.custom_resources import _classify_crd
 
         result = _classify_crd(
             "mydatabases.example.com", "example.com", "MyDatabase"
@@ -83,7 +83,7 @@ class TestClassifyCRD:
 
     @pytest.mark.unit
     def test_classify_completely_unknown_crd(self):
-        from kubectl_mcp_tool.tools.custom_resources import _classify_crd
+        from k8s_mcp.server.tools.custom_resources import _classify_crd
 
         result = _classify_crd(
             "widgets.internal.corp", "internal.corp", "Widget"
@@ -93,7 +93,7 @@ class TestClassifyCRD:
 
     @pytest.mark.unit
     def test_classify_monitoring(self):
-        from kubectl_mcp_tool.tools.custom_resources import _classify_crd
+        from k8s_mcp.server.tools.custom_resources import _classify_crd
 
         result = _classify_crd(
             "prometheuses.monitoring.coreos.com",
@@ -104,7 +104,7 @@ class TestClassifyCRD:
 
     @pytest.mark.unit
     def test_classify_cert_manager(self):
-        from kubectl_mcp_tool.tools.custom_resources import _classify_crd
+        from k8s_mcp.server.tools.custom_resources import _classify_crd
 
         result = _classify_crd(
             "certificates.cert-manager.io",
@@ -135,7 +135,7 @@ def _make_mock_crd(name, group, kind, plural, scope="Namespaced", version="v1"):
 class TestDiscoverCRDs:
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_discover_crds_basic(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
@@ -157,7 +157,7 @@ class TestDiscoverCRDs:
         mock_api.list_custom_resource_definition.return_value = MagicMock(items=crds)
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -172,7 +172,7 @@ class TestDiscoverCRDs:
         assert "messaging" in data["categories"]
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_discover_crds_filter_category(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
@@ -190,7 +190,7 @@ class TestDiscoverCRDs:
         mock_api.list_custom_resource_definition.return_value = MagicMock(items=crds)
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -204,12 +204,12 @@ class TestDiscoverCRDs:
         assert "messaging" not in data["categories"]
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_discover_crds_error(self, mock_get_client):
         mock_get_client.side_effect = Exception("connection refused")
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -225,7 +225,7 @@ class TestDiscoverCRDs:
 class TestSearchCRDs:
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_search_databases(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
@@ -243,7 +243,7 @@ class TestSearchCRDs:
         mock_api.list_custom_resource_definition.return_value = MagicMock(items=crds)
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -258,7 +258,7 @@ class TestSearchCRDs:
         assert "clusters.postgresql.cnpg.io" in names
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_search_kafka(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
@@ -272,7 +272,7 @@ class TestSearchCRDs:
         mock_api.list_custom_resource_definition.return_value = MagicMock(items=crds)
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -286,14 +286,14 @@ class TestSearchCRDs:
         assert data["results"][0]["name"] == "kafkas.kafka.strimzi.io"
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_search_no_results(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
         mock_api.list_custom_resource_definition.return_value = MagicMock(items=[])
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -309,7 +309,7 @@ class TestSearchCRDs:
 class TestListCustomResources:
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_custom_objects_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_custom_objects_client")
     def test_list_namespaced(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
@@ -329,7 +329,7 @@ class TestListCustomResources:
         }
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -352,14 +352,14 @@ class TestListCustomResources:
         assert data["items"][0]["replicas"] == 3
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_custom_objects_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_custom_objects_client")
     def test_list_cluster_scoped(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
         mock_api.list_cluster_custom_object.return_value = {"items": []}
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -381,14 +381,14 @@ class TestListCustomResources:
         mock_api.list_cluster_custom_object.assert_called_once()
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_custom_objects_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_custom_objects_client")
     def test_list_404_error(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
         mock_api.list_cluster_custom_object.side_effect = Exception("404 not found")
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -413,7 +413,7 @@ class TestListCustomResources:
 class TestGetCustomResource:
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_custom_objects_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_custom_objects_client")
     def test_get_namespaced(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
@@ -432,7 +432,7 @@ class TestGetCustomResource:
         }
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -453,14 +453,14 @@ class TestGetCustomResource:
         assert data["spec"]["instances"] == 3
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_custom_objects_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_custom_objects_client")
     def test_get_not_found(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
         mock_api.get_namespaced_custom_object.side_effect = Exception("404 not found")
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -483,7 +483,7 @@ class TestGetCustomResource:
 class TestDescribeCRD:
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_describe_crd(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
@@ -507,7 +507,7 @@ class TestDescribeCRD:
         mock_api.read_custom_resource_definition.return_value = mock_crd
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -525,14 +525,14 @@ class TestDescribeCRD:
         assert data["crd"]["description"] is not None
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_describe_crd_not_found(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
         mock_api.read_custom_resource_definition.side_effect = Exception("404 not found")
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -552,7 +552,7 @@ class TestDescribeCRD:
 class TestDetectCRDs:
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_detect_available(self, mock_get_client):
         mock_api = MagicMock()
         mock_get_client.return_value = mock_api
@@ -561,7 +561,7 @@ class TestDetectCRDs:
         )
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -575,12 +575,12 @@ class TestDetectCRDs:
         assert data["hasCRDs"] is True
 
     @pytest.mark.unit
-    @patch("kubectl_mcp_tool.tools.custom_resources.get_apiextensions_client")
+    @patch("k8s_mcp.server.tools.custom_resources.get_apiextensions_client")
     def test_detect_unavailable(self, mock_get_client):
         mock_get_client.side_effect = Exception("connection refused")
 
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
 
@@ -598,7 +598,7 @@ class TestToolRegistration:
     @pytest.mark.unit
     def test_six_tools_registered(self):
         from fastmcp import FastMCP
-        from kubectl_mcp_tool.tools.custom_resources import register_custom_resource_tools
+        from k8s_mcp.server.tools.custom_resources import register_custom_resource_tools
 
         server = FastMCP(name="test")
         register_custom_resource_tools(server, False)
@@ -619,12 +619,12 @@ class TestToolRegistration:
 
     @pytest.mark.unit
     def test_import_from_init(self):
-        from kubectl_mcp_tool.tools import register_custom_resource_tools
+        from k8s_mcp.server.tools import register_custom_resource_tools
         assert callable(register_custom_resource_tools)
 
     @pytest.mark.unit
     def test_import_module(self):
-        from kubectl_mcp_tool.tools.custom_resources import (
+        from k8s_mcp.server.tools.custom_resources import (
             register_custom_resource_tools,
             CRD_CATEGORIES,
             _classify_crd,

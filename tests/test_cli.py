@@ -14,7 +14,7 @@ class TestCliErrors:
     @pytest.mark.unit
     def test_error_code_values(self):
         """Test ErrorCode enum values."""
-        from kubectl_mcp_tool.cli.errors import ErrorCode
+        from k8s_mcp.ctl.errors import ErrorCode
 
         assert ErrorCode.SUCCESS == 0
         assert ErrorCode.CLIENT_ERROR == 1
@@ -26,7 +26,7 @@ class TestCliErrors:
     @pytest.mark.unit
     def test_cli_error_dataclass(self):
         """Test CliError dataclass."""
-        from kubectl_mcp_tool.cli.errors import CliError, ErrorCode
+        from k8s_mcp.ctl.errors import CliError, ErrorCode
 
         error = CliError(
             code=ErrorCode.CLIENT_ERROR,
@@ -45,7 +45,7 @@ class TestCliErrors:
     @pytest.mark.unit
     def test_format_cli_error(self):
         """Test format_cli_error function."""
-        from kubectl_mcp_tool.cli.errors import CliError, ErrorCode, format_cli_error
+        from k8s_mcp.ctl.errors import CliError, ErrorCode, format_cli_error
 
         error = CliError(
             code=ErrorCode.CLIENT_ERROR,
@@ -64,7 +64,7 @@ class TestCliErrors:
     @pytest.mark.unit
     def test_tool_not_found_error(self):
         """Test tool_not_found_error factory."""
-        from kubectl_mcp_tool.cli.errors import tool_not_found_error, ErrorCode
+        from k8s_mcp.ctl.errors import tool_not_found_error, ErrorCode
 
         error = tool_not_found_error("nonexistent_tool", ["get_pods", "list_namespaces"])
 
@@ -76,7 +76,7 @@ class TestCliErrors:
     @pytest.mark.unit
     def test_invalid_json_error(self):
         """Test invalid_json_error factory."""
-        from kubectl_mcp_tool.cli.errors import invalid_json_error, ErrorCode
+        from k8s_mcp.ctl.errors import invalid_json_error, ErrorCode
 
         error = invalid_json_error("{invalid json}", "Expecting value")
 
@@ -87,7 +87,7 @@ class TestCliErrors:
     @pytest.mark.unit
     def test_unknown_subcommand_error(self):
         """Test unknown_subcommand_error factory with suggestions."""
-        from kubectl_mcp_tool.cli.errors import unknown_subcommand_error
+        from k8s_mcp.ctl.errors import unknown_subcommand_error
 
         # Test known alias
         error = unknown_subcommand_error("run")
@@ -100,7 +100,7 @@ class TestCliErrors:
     @pytest.mark.unit
     def test_browser_not_found_error(self):
         """Test browser_not_found_error factory."""
-        from kubectl_mcp_tool.cli.errors import browser_not_found_error, ErrorCode
+        from k8s_mcp.ctl.errors import browser_not_found_error, ErrorCode
 
         error = browser_not_found_error()
 
@@ -115,7 +115,7 @@ class TestCliOutput:
     @pytest.mark.unit
     def test_should_colorize_respects_no_color(self):
         """Test that NO_COLOR env var disables colors."""
-        from kubectl_mcp_tool.cli.output import should_colorize
+        from k8s_mcp.ctl.output import should_colorize
 
         with patch.dict(os.environ, {"NO_COLOR": "1"}):
             assert should_colorize() is False
@@ -123,7 +123,7 @@ class TestCliOutput:
     @pytest.mark.unit
     def test_format_tools_list_json(self):
         """Test format_tools_list with JSON output."""
-        from kubectl_mcp_tool.cli.output import format_tools_list
+        from k8s_mcp.ctl.output import format_tools_list
 
         tools = [
             {"name": "get_pods", "description": "Get pods", "category": "pods"},
@@ -139,7 +139,7 @@ class TestCliOutput:
     @pytest.mark.unit
     def test_format_tools_list_text(self):
         """Test format_tools_list with text output."""
-        from kubectl_mcp_tool.cli.output import format_tools_list
+        from k8s_mcp.ctl.output import format_tools_list
 
         tools = [
             {"name": "get_pods", "description": "Get pods", "category": "pods"},
@@ -155,7 +155,7 @@ class TestCliOutput:
     @pytest.mark.unit
     def test_format_tool_schema(self):
         """Test format_tool_schema function."""
-        from kubectl_mcp_tool.cli.output import format_tool_schema
+        from k8s_mcp.ctl.output import format_tool_schema
 
         tool = {
             "name": "get_pods",
@@ -180,7 +180,7 @@ class TestCliOutput:
     @pytest.mark.unit
     def test_format_server_info(self):
         """Test format_server_info function."""
-        from kubectl_mcp_tool.cli.output import format_server_info
+        from k8s_mcp.ctl.output import format_server_info
 
         with patch.dict(os.environ, {"NO_COLOR": "1"}):
             result = format_server_info(
@@ -198,7 +198,7 @@ class TestCliOutput:
     @pytest.mark.unit
     def test_format_doctor_results(self):
         """Test format_doctor_results function."""
-        from kubectl_mcp_tool.cli.output import format_doctor_results
+        from k8s_mcp.ctl.output import format_doctor_results
 
         checks = [
             {"name": "kubectl", "status": "ok", "version": "v1.28.0"},
@@ -220,7 +220,7 @@ class TestCliCommands:
     @pytest.mark.unit
     def test_main_help(self):
         """Test that --help works."""
-        from kubectl_mcp_tool.cli.cli import main
+        from k8s_mcp.ctl.main import main
 
         with patch.object(sys, 'argv', ['k8s-mcp', '--help']):
             with pytest.raises(SystemExit) as exc_info:
@@ -231,7 +231,7 @@ class TestCliCommands:
     @pytest.mark.unit
     def test_get_tool_category(self):
         """Test tool category detection."""
-        from kubectl_mcp_tool.cli.cli import _get_tool_category
+        from k8s_mcp.ctl.main import _get_tool_category
 
         assert _get_tool_category("get_pods") == "pods"
         assert _get_tool_category("list_deployments") == "deployments"
@@ -242,7 +242,7 @@ class TestCliCommands:
     @pytest.mark.unit
     def test_cmd_doctor_checks_kubectl(self):
         """Test that doctor command checks for kubectl."""
-        from kubectl_mcp_tool.cli.cli import cmd_doctor
+        from k8s_mcp.ctl.main import cmd_doctor
 
         args = MagicMock()
         args.json = True
@@ -257,7 +257,7 @@ class TestCliCommands:
                     stdout='{"clientVersion": {"gitVersion": "v1.28.0"}}'
                 )
 
-                with patch("kubectl_mcp_tool.cli.cli.format_doctor_results") as mock_format:
+                with patch("k8s_mcp.ctl.main.format_doctor_results") as mock_format:
                     mock_format.return_value = "{}"
                     cmd_doctor(args)
 
@@ -271,14 +271,9 @@ class TestCliIntegration:
     @pytest.mark.unit
     def test_cli_module_imports(self):
         """Test that all CLI modules can be imported."""
-        from kubectl_mcp_tool.cli import (
-            main,
-            CliError,
-            ErrorCode,
-            format_cli_error,
-            format_tools_list,
-            format_server_info,
-        )
+        from k8s_mcp.ctl.main import main
+        from k8s_mcp.ctl.errors import CliError, ErrorCode, format_cli_error
+        from k8s_mcp.ctl.output import format_tools_list, format_server_info
 
         assert main is not None
         assert CliError is not None
@@ -287,7 +282,7 @@ class TestCliIntegration:
     @pytest.mark.unit
     def test_error_str_representation(self):
         """Test CliError __str__ method."""
-        from kubectl_mcp_tool.cli.errors import CliError, ErrorCode
+        from k8s_mcp.ctl.errors import CliError, ErrorCode
 
         error = CliError(
             code=ErrorCode.CLIENT_ERROR,

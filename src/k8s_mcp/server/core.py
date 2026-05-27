@@ -51,6 +51,8 @@ from k8s_mcp.server.config import (
     get_config,
     register_reload_callback,
     setup_sighup_handler,
+    DEFAULT_ENABLED_TOOL_MODULES,
+    ALL_TOOL_MODULES,
 )
 
 from k8s_mcp.server.prompts import (
@@ -91,7 +93,7 @@ from k8s_mcp.server.tools import (
     register_kind_tools,
     register_custom_resource_tools,
     register_prometheus_tools,
-    register_namespace_lifecycle_tools,
+    register_inspect_tools,
 )
 from k8s_mcp.server.resources import register_resources
 from k8s_mcp.server.prompts import register_prompts
@@ -300,63 +302,153 @@ class MCPServer:
                 logger.warning("Some dependencies are missing. Certain operations may not work correctly.")
         return self._dependencies_available
 
+    def _get_enabled_tool_modules(self) -> set:
+        """Determine which tool modules should be registered.
+
+        Returns:
+            Set of module names to enable.
+        """
+        tools_config = getattr(self.config, 'tools', None)
+        enabled = None
+
+        if tools_config:
+            enabled = getattr(tools_config, 'enabled', None)
+
+        # MCP_ENABLE_TOOLS overrides defaults
+        if enabled:
+            result = set(enabled)
+            invalid = result - ALL_TOOL_MODULES
+            if invalid:
+                logger.warning(f"Unknown tool modules in MCP_ENABLE_TOOLS: {', '.join(sorted(invalid))}")
+            valid = result & ALL_TOOL_MODULES
+            logger.info(f"Tool modules enabled: {', '.join(sorted(valid))}")
+            return valid
+
+        # Default: only core module
+        result = set(DEFAULT_ENABLED_TOOL_MODULES)
+        logger.info(f"Tool modules enabled (default): {', '.join(sorted(result))}")
+        return result
+
     def setup_tools(self):
         """Set up the tools for the MCP server by calling all registration functions."""
-        # Register all tool modules
-        register_helm_tools(self.server, self.non_destructive, self._check_helm_availability)
-        register_pod_tools(self.server, self.non_destructive)
-        register_core_tools(self.server, self.non_destructive)
-        register_cluster_tools(self.server, self.non_destructive)
-        register_multicluster_tools(self.server, self.non_destructive)
-        register_deployment_tools(self.server, self.non_destructive)
-        register_security_tools(self.server, self.non_destructive)
-        register_networking_tools(self.server, self.non_destructive)
-        register_storage_tools(self.server, self.non_destructive)
-        register_operations_tools(self.server, self.non_destructive)
-        register_diagnostics_tools(self.server, self.non_destructive)
-        register_cost_tools(self.server, self.non_destructive)
+        enabled_modules = self._get_enabled_tool_modules()
 
-        # Register optional browser tools if enabled and available
-        if is_browser_available():
-            register_browser_tools(self.server, self.non_destructive)
-            logger.info("Browser automation tools enabled (MCP_BROWSER_ENABLED=true)")
+        # Core modules (enabled by default)
+        if "core" in enabled_modules:
+            register_core_tools(self.server, self.non_destructive)
+            logger.debug("Core tools registered")
+
+        if "pod" in enabled_modules:
+            register_pod_tools(self.server, self.non_destructive)
+            logger.debug("Pod tools registered")
+
+        if "cluster" in enabled_modules:
+            register_cluster_tools(self.server, self.non_destructive)
+            logger.debug("Cluster tools registered")
+
+        if "multicluster" in enabled_modules:
+            register_multicluster_tools(self.server, self.non_destructive)
+            logger.debug("Multicluster tools registered")
+
+        if "operations" in enabled_modules:
+            register_operations_tools(self.server, self.non_destructive)
+            logger.debug("Operations tools registered")
+
+        if "deployment" in enabled_modules:
+            register_deployment_tools(self.server, self.non_destructive)
+            logger.debug("Deployment tools registered")
+
+        if "networking" in enabled_modules:
+            register_networking_tools(self.server, self.non_destructive)
+            logger.debug("Networking tools registered")
+
+        if "security" in enabled_modules:
+            register_security_tools(self.server, self.non_destructive)
+            logger.debug("Security tools registered")
+
+        if "inspect" in enabled_modules:
+            register_inspect_tools(self.server, self.non_destructive)
+            logger.debug("Inspect tools registered")
+
+        # Optional modules (disabled by default)
+        if "helm" in enabled_modules:
+            register_helm_tools(self.server, self.non_destructive, self._check_helm_availability)
+            logger.debug("Helm tools registered")
         else:
-            logger.debug("Browser tools disabled (set MCP_BROWSER_ENABLED=true to enable)")
+            logger.debug("Helm tools disabled (add 'helm' to MCP_ENABLE_TOOLS to enable)")
 
-        # Register MCP-UI tools for interactive dashboards (optional)
-        if is_ui_available():
-            register_ui_tools(self.server, self.non_destructive)
-            logger.info("MCP-UI tools enabled (mcp-ui-server installed)")
+        if "storage" in enabled_modules:
+            register_storage_tools(self.server, self.non_destructive)
+            logger.debug("Storage tools registered")
         else:
-            logger.debug("MCP-UI tools disabled (install mcp-ui-server to enable)")
+            logger.debug("Storage tools disabled (add 'storage' to MCP_ENABLE_TOOLS to enable)")
 
-        # Register ecosystem tools (GitOps, Cert-Manager, Policy, Backup)
-        # These tools auto-detect installed CRDs and gracefully handle missing components
-        register_gitops_tools(self.server, self.non_destructive)
-        register_certs_tools(self.server, self.non_destructive)
-        register_policy_tools(self.server, self.non_destructive)
-        register_backup_tools(self.server, self.non_destructive)
-        logger.debug("Ecosystem tools registered (GitOps, Certs, Policy, Backup)")
+        if "diagnostics" in enabled_modules:
+            register_diagnostics_tools(self.server, self.non_destructive)
+            logger.debug("Diagnostics tools registered")
+        else:
+            logger.debug("Diagnostics tools disabled (add 'diagnostics' to MCP_ENABLE_TOOLS to enable)")
 
-        # Register advanced ecosystem tools (KEDA, Cilium, Rollouts, CAPI, KubeVirt, Istio)
-        register_keda_tools(self.server, self.non_destructive)
-        register_cilium_tools(self.server, self.non_destructive)
-        register_rollouts_tools(self.server, self.non_destructive)
-        register_capi_tools(self.server, self.non_destructive)
-        register_kubevirt_tools(self.server, self.non_destructive)
-        register_istio_tools(self.server, self.non_destructive)
-        register_vind_tools(self.server, self.non_destructive)
-        register_kind_tools(self.server, self.non_destructive)
-        logger.debug("Advanced ecosystem tools registered (KEDA, Cilium, Rollouts, CAPI, KubeVirt, Istio, vind, kind)")
+        if "cost" in enabled_modules:
+            register_cost_tools(self.server, self.non_destructive)
+            logger.debug("Cost tools registered")
+        else:
+            logger.debug("Cost tools disabled (add 'cost' to MCP_ENABLE_TOOLS to enable)")
 
-        register_custom_resource_tools(self.server, self.non_destructive)
-        logger.debug("Custom resource discovery tools registered (5 tools)")
+        if "custom_resource" in enabled_modules:
+            register_custom_resource_tools(self.server, self.non_destructive)
+            logger.debug("Custom resource tools registered")
+        else:
+            logger.debug("Custom resource tools disabled (add 'custom_resource' to MCP_ENABLE_TOOLS to enable)")
 
-        register_prometheus_tools(self.server, self.non_destructive)
-        logger.debug("Prometheus query tools registered (2 tools)")
+        if "prometheus" in enabled_modules:
+            register_prometheus_tools(self.server, self.non_destructive)
+            logger.debug("Prometheus tools registered")
+        else:
+            logger.debug("Prometheus tools disabled (add 'prometheus' to MCP_ENABLE_TOOLS to enable)")
 
-        register_namespace_lifecycle_tools(self.server, self.non_destructive)
-        logger.debug("Namespace lifecycle tools registered (2 tools)")
+        # Browser tools (requires MCP_BROWSER_ENABLED + agent-browser binary)
+        if "browser" in enabled_modules:
+            if is_browser_available():
+                register_browser_tools(self.server, self.non_destructive)
+                logger.info("Browser automation tools enabled")
+            else:
+                logger.warning("Browser tools requested but not available (set MCP_BROWSER_ENABLED=true and ensure agent-browser is in PATH)")
+        else:
+            logger.debug("Browser tools disabled (add 'browser' to MCP_ENABLE_TOOLS to enable)")
+
+        # MCP-UI tools (requires mcp-ui-server package)
+        if "ui" in enabled_modules:
+            if is_ui_available():
+                register_ui_tools(self.server, self.non_destructive)
+                logger.info("MCP-UI tools enabled")
+            else:
+                logger.warning("UI tools requested but not available (install mcp-ui-server package)")
+        else:
+            logger.debug("UI tools disabled (add 'ui' to MCP_ENABLE_TOOLS to enable)")
+
+        # Ecosystem tools (disabled by default, require explicit enable)
+        ecosystem_modules = {
+            "gitops": register_gitops_tools,
+            "certs": register_certs_tools,
+            "policy": register_policy_tools,
+            "backup": register_backup_tools,
+            "keda": register_keda_tools,
+            "cilium": register_cilium_tools,
+            "rollouts": register_rollouts_tools,
+            "capi": register_capi_tools,
+            "kubevirt": register_kubevirt_tools,
+            "istio": register_istio_tools,
+            "vind": register_vind_tools,
+            "kind": register_kind_tools,
+        }
+
+        for name, register_func in ecosystem_modules.items():
+            if name in enabled_modules:
+                register_func(self.server, self.non_destructive)
+                logger.debug(f"{name.capitalize()} tools registered")
+            else:
+                logger.debug(f"{name.capitalize()} tools disabled (add '{name}' to MCP_ENABLE_TOOLS to enable)")
 
     def setup_resources(self):
         """Set up MCP resources for Kubernetes data exposure."""

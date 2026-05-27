@@ -23,7 +23,7 @@ import tempfile
 import os
 from unittest.mock import patch, MagicMock
 
-from kubectl_mcp_tool.prompts.custom import (
+from k8s_mcp.server.prompts.custom import (
     CustomPrompt,
     PromptArgument,
     PromptMessage,
@@ -34,7 +34,7 @@ from kubectl_mcp_tool.prompts.custom import (
     apply_defaults,
     get_prompt_schema,
 )
-from kubectl_mcp_tool.prompts.builtin import (
+from k8s_mcp.server.prompts.builtin import (
     BUILTIN_PROMPTS,
     get_builtin_prompts,
     get_builtin_prompt_by_name,
@@ -53,9 +53,9 @@ class TestTroubleshootWorkloadPrompt:
     @pytest.mark.unit
     def test_prompt_registration(self):
         """Test that troubleshoot_workload prompt is registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -109,9 +109,9 @@ class TestDeployApplicationPrompt:
     @pytest.mark.unit
     def test_prompt_registration(self):
         """Test that deploy_application prompt is registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -164,9 +164,9 @@ class TestSecurityAuditPrompt:
     @pytest.mark.unit
     def test_prompt_registration(self):
         """Test that security_audit prompt is registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -211,9 +211,9 @@ class TestCostOptimizationPrompt:
     @pytest.mark.unit
     def test_prompt_registration(self):
         """Test that cost_optimization prompt is registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -245,9 +245,9 @@ class TestDisasterRecoveryPrompt:
     @pytest.mark.unit
     def test_prompt_registration(self):
         """Test that disaster_recovery prompt is registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -281,9 +281,9 @@ class TestDebugNetworkingPrompt:
     @pytest.mark.unit
     def test_prompt_registration(self):
         """Test that debug_networking prompt is registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -338,9 +338,9 @@ class TestScaleApplicationPrompt:
     @pytest.mark.unit
     def test_prompt_registration(self):
         """Test that scale_application prompt is registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -387,9 +387,9 @@ class TestUpgradeClusterPrompt:
     @pytest.mark.unit
     def test_prompt_registration(self):
         """Test that upgrade_cluster prompt is registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 
@@ -458,9 +458,9 @@ class TestPromptRegistration:
     @pytest.mark.unit
     def test_all_prompts_registered(self):
         """Test that all expected prompts are registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             with patch("kubernetes.config.load_kube_config"):
                 server = MCPServer(name="test")
 

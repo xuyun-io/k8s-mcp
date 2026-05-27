@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from kubectl_mcp_tool.elicit import confirm_destructive, check_write_allowed
-from kubectl_mcp_tool.safety import SafetyMode, set_safety_mode
+from k8s_mcp.server.elicit import confirm_destructive, check_write_allowed
+from k8s_mcp.server.safety import SafetyMode, set_safety_mode
 
 
 class MockElicitResult:

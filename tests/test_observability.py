@@ -12,7 +12,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_singleton_pattern(self):
         """Test that StatsCollector is a singleton."""
-        from kubectl_mcp_tool.observability.stats import StatsCollector
+        from k8s_mcp.server.observability.stats import StatsCollector
 
         instance1 = StatsCollector()
         instance2 = StatsCollector()
@@ -22,7 +22,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_get_stats_collector(self):
         """Test get_stats_collector function."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         assert collector is not None
@@ -34,7 +34,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_record_tool_call_success(self):
         """Test recording a successful tool call."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         collector.reset()
@@ -52,7 +52,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_record_tool_call_error(self):
         """Test recording a failed tool call."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         collector.reset()
@@ -70,7 +70,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_record_tool_error(self):
         """Test record_tool_error shorthand."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         collector.reset()
@@ -83,7 +83,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_record_http_request(self):
         """Test recording HTTP requests."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         collector.reset()
@@ -104,7 +104,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_uptime(self):
         """Test uptime property."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         collector.reset()
@@ -118,7 +118,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_get_stats(self):
         """Test get_stats returns complete statistics."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         collector.reset()
@@ -140,7 +140,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_get_tool_stats_nonexistent(self):
         """Test get_tool_stats returns None for nonexistent tool."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         collector.reset()
@@ -151,7 +151,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_reset(self):
         """Test reset clears all statistics."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
 
@@ -167,7 +167,7 @@ class TestStatsCollector:
     @pytest.mark.unit
     def test_thread_safety(self):
         """Test that StatsCollector is thread-safe."""
-        from kubectl_mcp_tool.observability.stats import get_stats_collector
+        from k8s_mcp.server.observability.stats import get_stats_collector
 
         collector = get_stats_collector()
         collector.reset()
@@ -192,7 +192,7 @@ class TestPrometheusMetrics:
     @pytest.mark.unit
     def test_is_prometheus_available(self):
         """Test is_prometheus_available function."""
-        from kubectl_mcp_tool.observability.metrics import is_prometheus_available
+        from k8s_mcp.server.observability.metrics import is_prometheus_available
 
         # Should return bool regardless of prometheus_client installation
         result = is_prometheus_available()
@@ -201,7 +201,7 @@ class TestPrometheusMetrics:
     @pytest.mark.unit
     def test_get_metrics(self):
         """Test get_metrics returns Prometheus format."""
-        from kubectl_mcp_tool.observability.metrics import get_metrics, is_prometheus_available
+        from k8s_mcp.server.observability.metrics import get_metrics, is_prometheus_available
 
         metrics = get_metrics()
 
@@ -217,7 +217,7 @@ class TestPrometheusMetrics:
     @pytest.mark.unit
     def test_record_tool_call_metric(self):
         """Test record_tool_call_metric function."""
-        from kubectl_mcp_tool.observability.metrics import (
+        from k8s_mcp.server.observability.metrics import (
             record_tool_call_metric,
             is_prometheus_available,
         )
@@ -229,7 +229,7 @@ class TestPrometheusMetrics:
     @pytest.mark.unit
     def test_record_tool_error_metric(self):
         """Test record_tool_error_metric function."""
-        from kubectl_mcp_tool.observability.metrics import record_tool_error_metric
+        from k8s_mcp.server.observability.metrics import record_tool_error_metric
 
         # Should not raise even if prometheus_client is not installed
         record_tool_error_metric("test_tool", error_type="validation")
@@ -238,7 +238,7 @@ class TestPrometheusMetrics:
     @pytest.mark.unit
     def test_record_tool_duration_metric(self):
         """Test record_tool_duration_metric function."""
-        from kubectl_mcp_tool.observability.metrics import record_tool_duration_metric
+        from k8s_mcp.server.observability.metrics import record_tool_duration_metric
 
         # Should not raise even if prometheus_client is not installed
         record_tool_duration_metric("test_tool", 0.5)
@@ -247,7 +247,7 @@ class TestPrometheusMetrics:
     @pytest.mark.unit
     def test_record_http_request_metric(self):
         """Test record_http_request_metric function."""
-        from kubectl_mcp_tool.observability.metrics import record_http_request_metric
+        from k8s_mcp.server.observability.metrics import record_http_request_metric
 
         # Should not raise even if prometheus_client is not installed
         record_http_request_metric("/stats", "GET", 200)
@@ -256,7 +256,7 @@ class TestPrometheusMetrics:
     @pytest.mark.unit
     def test_set_server_info(self):
         """Test set_server_info function."""
-        from kubectl_mcp_tool.observability.metrics import set_server_info
+        from k8s_mcp.server.observability.metrics import set_server_info
 
         # Should not raise even if prometheus_client is not installed
         set_server_info("1.16.0", "stdio")
@@ -264,7 +264,7 @@ class TestPrometheusMetrics:
     @pytest.mark.unit
     def test_get_metrics_content_type(self):
         """Test get_metrics_content_type function."""
-        from kubectl_mcp_tool.observability.metrics import get_metrics_content_type
+        from k8s_mcp.server.observability.metrics import get_metrics_content_type
 
         content_type = get_metrics_content_type()
         assert isinstance(content_type, str)
@@ -277,7 +277,7 @@ class TestTracing:
     @pytest.mark.unit
     def test_is_tracing_available(self):
         """Test is_tracing_available function."""
-        from kubectl_mcp_tool.observability.tracing import is_tracing_available
+        from k8s_mcp.server.observability.tracing import is_tracing_available
 
         # Should return bool regardless of opentelemetry installation
         result = is_tracing_available()
@@ -286,7 +286,7 @@ class TestTracing:
     @pytest.mark.unit
     def test_get_tracer_before_init(self):
         """Test get_tracer returns None before initialization."""
-        from kubectl_mcp_tool.observability.tracing import get_tracer, shutdown_tracing
+        from k8s_mcp.server.observability.tracing import get_tracer, shutdown_tracing
 
         # Ensure clean state
         shutdown_tracing()
@@ -298,7 +298,7 @@ class TestTracing:
     @pytest.mark.unit
     def test_traced_tool_call_no_op(self):
         """Test traced_tool_call works as no-op when tracing unavailable."""
-        from kubectl_mcp_tool.observability.tracing import traced_tool_call, shutdown_tracing
+        from k8s_mcp.server.observability.tracing import traced_tool_call, shutdown_tracing
 
         shutdown_tracing()
 
@@ -311,7 +311,7 @@ class TestTracing:
     @pytest.mark.unit
     def test_traced_tool_call_with_exception(self):
         """Test traced_tool_call propagates exceptions."""
-        from kubectl_mcp_tool.observability.tracing import traced_tool_call
+        from k8s_mcp.server.observability.tracing import traced_tool_call
 
         with pytest.raises(ValueError, match="test error"):
             with traced_tool_call("test_tool") as span:
@@ -320,7 +320,7 @@ class TestTracing:
     @pytest.mark.unit
     def test_add_span_attribute(self):
         """Test add_span_attribute function."""
-        from kubectl_mcp_tool.observability.tracing import add_span_attribute
+        from k8s_mcp.server.observability.tracing import add_span_attribute
 
         # Should not raise even if tracing is not available
         add_span_attribute("test_key", "test_value")
@@ -331,7 +331,7 @@ class TestTracing:
     @pytest.mark.unit
     def test_record_span_exception(self):
         """Test record_span_exception function."""
-        from kubectl_mcp_tool.observability.tracing import record_span_exception
+        from k8s_mcp.server.observability.tracing import record_span_exception
 
         # Should not raise even if tracing is not available
         record_span_exception(ValueError("test error"))
@@ -339,7 +339,7 @@ class TestTracing:
     @pytest.mark.unit
     def test_shutdown_tracing(self):
         """Test shutdown_tracing function."""
-        from kubectl_mcp_tool.observability.tracing import shutdown_tracing
+        from k8s_mcp.server.observability.tracing import shutdown_tracing
 
         # Should not raise even if tracing was not initialized
         shutdown_tracing()
@@ -348,7 +348,7 @@ class TestTracing:
     @pytest.mark.unit
     def test_init_tracing_without_endpoint(self):
         """Test init_tracing without OTLP endpoint."""
-        from kubectl_mcp_tool.observability.tracing import (
+        from k8s_mcp.server.observability.tracing import (
             init_tracing,
             is_tracing_available,
             shutdown_tracing,
@@ -373,7 +373,7 @@ class TestObservabilityModule:
     @pytest.mark.unit
     def test_module_imports(self):
         """Test that all observability functions can be imported."""
-        from kubectl_mcp_tool.observability import (
+        from k8s_mcp.server.observability import (
             StatsCollector,
             get_stats_collector,
             get_metrics,
@@ -397,7 +397,7 @@ class TestObservabilityModule:
     @pytest.mark.unit
     def test_stats_and_metrics_integration(self):
         """Test stats and metrics work together."""
-        from kubectl_mcp_tool.observability import (
+        from k8s_mcp.server.observability import (
             get_stats_collector,
             record_tool_call_metric,
             get_metrics,
@@ -424,12 +424,12 @@ class TestSamplerConfiguration:
     @pytest.mark.unit
     def test_sampler_always_on(self):
         """Test OTEL_TRACES_SAMPLER=always_on."""
-        from kubectl_mcp_tool.observability.tracing import is_tracing_available
+        from k8s_mcp.server.observability.tracing import is_tracing_available
 
         if not is_tracing_available():
             pytest.skip("OpenTelemetry not available")
 
-        from kubectl_mcp_tool.observability.tracing import _get_sampler
+        from k8s_mcp.server.observability.tracing import _get_sampler
 
         with patch.dict("os.environ", {"OTEL_TRACES_SAMPLER": "always_on"}):
             sampler = _get_sampler()
@@ -438,12 +438,12 @@ class TestSamplerConfiguration:
     @pytest.mark.unit
     def test_sampler_always_off(self):
         """Test OTEL_TRACES_SAMPLER=always_off."""
-        from kubectl_mcp_tool.observability.tracing import is_tracing_available
+        from k8s_mcp.server.observability.tracing import is_tracing_available
 
         if not is_tracing_available():
             pytest.skip("OpenTelemetry not available")
 
-        from kubectl_mcp_tool.observability.tracing import _get_sampler
+        from k8s_mcp.server.observability.tracing import _get_sampler
 
         with patch.dict("os.environ", {"OTEL_TRACES_SAMPLER": "always_off"}):
             sampler = _get_sampler()
@@ -452,12 +452,12 @@ class TestSamplerConfiguration:
     @pytest.mark.unit
     def test_sampler_trace_id_ratio(self):
         """Test OTEL_TRACES_SAMPLER=traceidratio."""
-        from kubectl_mcp_tool.observability.tracing import is_tracing_available
+        from k8s_mcp.server.observability.tracing import is_tracing_available
 
         if not is_tracing_available():
             pytest.skip("OpenTelemetry not available")
 
-        from kubectl_mcp_tool.observability.tracing import _get_sampler
+        from k8s_mcp.server.observability.tracing import _get_sampler
 
         with patch.dict("os.environ", {
             "OTEL_TRACES_SAMPLER": "traceidratio",
@@ -469,12 +469,12 @@ class TestSamplerConfiguration:
     @pytest.mark.unit
     def test_sampler_invalid_ratio(self):
         """Test invalid OTEL_TRACES_SAMPLER_ARG defaults to 1.0."""
-        from kubectl_mcp_tool.observability.tracing import is_tracing_available
+        from k8s_mcp.server.observability.tracing import is_tracing_available
 
         if not is_tracing_available():
             pytest.skip("OpenTelemetry not available")
 
-        from kubectl_mcp_tool.observability.tracing import _get_sampler
+        from k8s_mcp.server.observability.tracing import _get_sampler
 
         with patch.dict("os.environ", {
             "OTEL_TRACES_SAMPLER": "traceidratio",
@@ -491,7 +491,7 @@ class TestToolStatsDataclass:
     @pytest.mark.unit
     def test_tool_stats_defaults(self):
         """Test ToolStats default values."""
-        from kubectl_mcp_tool.observability.stats import ToolStats
+        from k8s_mcp.server.observability.stats import ToolStats
 
         stats = ToolStats()
 
@@ -504,7 +504,7 @@ class TestToolStatsDataclass:
     @pytest.mark.unit
     def test_tool_stats_custom_values(self):
         """Test ToolStats with custom values."""
-        from kubectl_mcp_tool.observability.stats import ToolStats
+        from k8s_mcp.server.observability.stats import ToolStats
 
         now = time.time()
         stats = ToolStats(

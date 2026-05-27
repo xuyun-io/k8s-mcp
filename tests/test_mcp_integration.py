@@ -11,13 +11,13 @@ class TestMCPServerIntegration:
 
     def test_import_mcp_server(self):
         """Test that MCP server can be imported without errors."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
         assert MCPServer is not None
 
     def test_mcp_server_init_default(self):
         """Test MCP server initialization with defaults."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        from kubectl_mcp_tool.safety import SafetyMode, get_safety_mode, set_safety_mode
+        from k8s_mcp.server.core import MCPServer
+        from k8s_mcp.server.safety import SafetyMode, get_safety_mode, set_safety_mode
 
         # Reset to normal mode
         set_safety_mode(SafetyMode.NORMAL)
@@ -28,8 +28,8 @@ class TestMCPServerIntegration:
 
     def test_mcp_server_init_read_only(self):
         """Test MCP server initialization with read-only mode."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        from kubectl_mcp_tool.safety import SafetyMode, get_safety_mode, set_safety_mode
+        from k8s_mcp.server.core import MCPServer
+        from k8s_mcp.server.safety import SafetyMode, get_safety_mode, set_safety_mode
 
         # Reset to normal mode first
         set_safety_mode(SafetyMode.NORMAL)
@@ -41,8 +41,8 @@ class TestMCPServerIntegration:
 
     def test_mcp_server_init_disable_destructive(self):
         """Test MCP server initialization with disable-destructive mode."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        from kubectl_mcp_tool.safety import SafetyMode, get_safety_mode, set_safety_mode
+        from k8s_mcp.server.core import MCPServer
+        from k8s_mcp.server.safety import SafetyMode, get_safety_mode, set_safety_mode
 
         # Reset to normal mode first
         set_safety_mode(SafetyMode.NORMAL)
@@ -54,8 +54,8 @@ class TestMCPServerIntegration:
 
     def test_mcp_server_init_with_config_file(self):
         """Test MCP server initialization with config file."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        from kubectl_mcp_tool.safety import SafetyMode, set_safety_mode, get_safety_mode
+        from k8s_mcp.server.core import MCPServer
+        from k8s_mcp.server.safety import SafetyMode, set_safety_mode, get_safety_mode
 
         # Reset to normal mode first
         set_safety_mode(SafetyMode.NORMAL)
@@ -83,8 +83,8 @@ mode = "read-only"
 
     def test_mcp_server_has_stats_collector(self):
         """Test MCP server has stats collector initialized."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        from kubectl_mcp_tool.safety import SafetyMode, set_safety_mode
+        from k8s_mcp.server.core import MCPServer
+        from k8s_mcp.server.safety import SafetyMode, set_safety_mode
 
         # Reset to normal mode first
         set_safety_mode(SafetyMode.NORMAL)
@@ -98,9 +98,9 @@ mode = "read-only"
 
     def test_mcp_server_reload_callback(self):
         """Test MCP server registers reload callback."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
-        from kubectl_mcp_tool.config import reload_config
-        from kubectl_mcp_tool.safety import SafetyMode, set_safety_mode
+        from k8s_mcp.server.core import MCPServer
+        from k8s_mcp.server.config import reload_config
+        from k8s_mcp.server.safety import SafetyMode, set_safety_mode
 
         # Reset to normal mode first
         set_safety_mode(SafetyMode.NORMAL)
@@ -117,19 +117,19 @@ mode = "read-only"
 
     def test_cli_parameters_read_only(self):
         """Test CLI parameters for read-only mode."""
-        from kubectl_mcp_tool.safety import SafetyMode, set_safety_mode
+        from k8s_mcp.server.safety import SafetyMode, set_safety_mode
 
         # Reset to normal mode first
         set_safety_mode(SafetyMode.NORMAL)
 
         # Verify the set_safety_mode works as expected
         set_safety_mode(SafetyMode.READ_ONLY)
-        from kubectl_mcp_tool.safety import get_safety_mode
+        from k8s_mcp.server.safety import get_safety_mode
         assert get_safety_mode() == SafetyMode.READ_ONLY
 
     def test_cli_parameters_disable_destructive(self):
         """Test CLI parameters for disable-destructive mode."""
-        from kubectl_mcp_tool.safety import SafetyMode, set_safety_mode, get_safety_mode
+        from k8s_mcp.server.safety import SafetyMode, set_safety_mode, get_safety_mode
 
         # Reset to normal mode first
         set_safety_mode(SafetyMode.NORMAL)
@@ -143,7 +143,7 @@ class TestMCPServerObservability:
 
     def test_stats_collector_integration(self):
         """Test stats collector is available in MCP server."""
-        from kubectl_mcp_tool.observability import get_stats_collector
+        from k8s_mcp.server.observability import get_stats_collector
 
         stats = get_stats_collector()
         assert stats is not None
@@ -157,7 +157,7 @@ class TestMCPServerObservability:
 
     def test_metrics_availability(self):
         """Test Prometheus metrics availability check."""
-        from kubectl_mcp_tool.observability import is_prometheus_available, get_metrics
+        from k8s_mcp.server.observability import is_prometheus_available, get_metrics
 
         # Check availability (may or may not be installed)
         available = is_prometheus_available()
@@ -172,7 +172,7 @@ class TestMCPServerConfig:
 
     def test_load_config(self):
         """Test config loading."""
-        from kubectl_mcp_tool.config import load_config
+        from k8s_mcp.server.config import load_config
 
         config = load_config()
         assert config is not None
@@ -182,7 +182,7 @@ class TestMCPServerConfig:
 
     def test_config_reload_callbacks(self):
         """Test config reload callback registration."""
-        from kubectl_mcp_tool.config import (
+        from k8s_mcp.server.config import (
             register_reload_callback,
             unregister_reload_callback,
         )
@@ -206,7 +206,7 @@ class TestMCPServerSafety:
 
     def test_safety_mode_info(self):
         """Test safety mode info for all modes."""
-        from kubectl_mcp_tool.safety import (
+        from k8s_mcp.server.safety import (
             SafetyMode,
             set_safety_mode,
             get_mode_info,

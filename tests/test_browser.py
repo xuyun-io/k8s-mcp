@@ -15,7 +15,7 @@ class TestBrowserAvailability:
         with patch.dict(os.environ, {}, clear=True):
             # Need to reload module to pick up env changes
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
             assert browser_module.BROWSER_ENABLED is False
 
@@ -24,7 +24,7 @@ class TestBrowserAvailability:
         """Browser tools should be enabled when MCP_BROWSER_ENABLED=true."""
         with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "true"}):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
             assert browser_module.BROWSER_ENABLED is True
 
@@ -33,7 +33,7 @@ class TestBrowserAvailability:
         """is_browser_available returns False when disabled."""
         with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "false"}):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
             assert browser_module.is_browser_available() is False
 
@@ -43,7 +43,7 @@ class TestBrowserAvailability:
         with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "true"}):
             with patch("shutil.which", return_value=None):
                 import importlib
-                import kubectl_mcp_tool.tools.browser as browser_module
+                import k8s_mcp.server.tools.browser as browser_module
                 importlib.reload(browser_module)
                 # Force re-check since BROWSER_AVAILABLE is set at import time
                 browser_module.BROWSER_AVAILABLE = False
@@ -56,7 +56,7 @@ class TestBrowserCommands:
     @pytest.mark.unit
     def test_run_browser_success(self):
         """Test successful browser command execution."""
-        from kubectl_mcp_tool.tools.browser import _run_browser
+        from k8s_mcp.server.tools.browser import _run_browser
 
         mock_result = MagicMock()
         mock_result.returncode = 0
@@ -71,7 +71,7 @@ class TestBrowserCommands:
     @pytest.mark.unit
     def test_run_browser_failure(self):
         """Test failed browser command execution."""
-        from kubectl_mcp_tool.tools.browser import _run_browser
+        from k8s_mcp.server.tools.browser import _run_browser
 
         mock_result = MagicMock()
         mock_result.returncode = 1
@@ -86,7 +86,7 @@ class TestBrowserCommands:
     @pytest.mark.unit
     def test_run_browser_json_output(self):
         """Test browser command with JSON output."""
-        from kubectl_mcp_tool.tools.browser import _run_browser
+        from k8s_mcp.server.tools.browser import _run_browser
 
         mock_result = MagicMock()
         mock_result.returncode = 0
@@ -101,7 +101,7 @@ class TestBrowserCommands:
     @pytest.mark.unit
     def test_run_browser_timeout(self):
         """Test browser command timeout handling."""
-        from kubectl_mcp_tool.tools.browser import _run_browser
+        from k8s_mcp.server.tools.browser import _run_browser
         import subprocess
 
         with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("cmd", 60)):
@@ -112,7 +112,7 @@ class TestBrowserCommands:
     @pytest.mark.unit
     def test_run_browser_not_found(self):
         """Test handling when agent-browser is not installed."""
-        from kubectl_mcp_tool.tools.browser import _run_browser
+        from k8s_mcp.server.tools.browser import _run_browser
 
         with patch("subprocess.run", side_effect=FileNotFoundError()):
             result = _run_browser(["open", "https://example.com"])
@@ -126,14 +126,14 @@ class TestBrowserToolFunctions:
     @pytest.fixture
     def mock_browser_run(self):
         """Fixture to mock _run_browser."""
-        with patch("kubectl_mcp_tool.tools.browser._run_browser") as mock:
+        with patch("k8s_mcp.server.tools.browser._run_browser") as mock:
             mock.return_value = {"success": True, "output": "OK"}
             yield mock
 
     @pytest.mark.unit
     def test_browser_open(self, mock_browser_run):
         """Test browser_open tool."""
-        from kubectl_mcp_tool.tools.browser import register_browser_tools
+        from k8s_mcp.server.tools.browser import register_browser_tools
         from fastmcp import FastMCP
 
         server = FastMCP(name="test")
@@ -148,7 +148,7 @@ class TestBrowserToolFunctions:
     @pytest.mark.unit
     def test_browser_snapshot(self, mock_browser_run):
         """Test browser_snapshot tool."""
-        from kubectl_mcp_tool.tools.browser import register_browser_tools
+        from k8s_mcp.server.tools.browser import register_browser_tools
         from fastmcp import FastMCP
 
         server = FastMCP(name="test")
@@ -161,7 +161,7 @@ class TestBrowserToolFunctions:
     @pytest.mark.unit
     def test_browser_screenshot(self, mock_browser_run):
         """Test browser_screenshot tool."""
-        from kubectl_mcp_tool.tools.browser import register_browser_tools
+        from k8s_mcp.server.tools.browser import register_browser_tools
         from fastmcp import FastMCP
 
         server = FastMCP(name="test")
@@ -174,7 +174,7 @@ class TestBrowserToolFunctions:
     @pytest.mark.unit
     def test_all_26_browser_tools_registered(self):
         """Verify all 26 browser tools are registered (v0.7+)."""
-        from kubectl_mcp_tool.tools.browser import register_browser_tools
+        from k8s_mcp.server.tools.browser import register_browser_tools
         from fastmcp import FastMCP
         import asyncio
 
@@ -227,12 +227,12 @@ class TestBrowserV07Features:
     @pytest.mark.unit
     def test_get_global_options_empty(self):
         """Test _get_global_options with no env vars set."""
-        from kubectl_mcp_tool.tools.browser import _get_global_options
+        from k8s_mcp.server.tools.browser import _get_global_options
 
         with patch.dict(os.environ, {}, clear=True):
             # Need to reload to pick up cleared env
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
 
             opts = browser_module._get_global_options()
@@ -244,7 +244,7 @@ class TestBrowserV07Features:
         """Test _get_global_options with cloud provider."""
         with patch.dict(os.environ, {"MCP_BROWSER_PROVIDER": "browserbase"}):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
 
             opts = browser_module._get_global_options()
@@ -256,7 +256,7 @@ class TestBrowserV07Features:
         """Test _get_global_options with persistent profile."""
         with patch.dict(os.environ, {"MCP_BROWSER_PROFILE": "~/.k8s-browser"}):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
 
             opts = browser_module._get_global_options()
@@ -267,7 +267,7 @@ class TestBrowserV07Features:
         """Test _get_global_options with session name."""
         with patch.dict(os.environ, {"MCP_BROWSER_SESSION": "test-session"}):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
 
             opts = browser_module._get_global_options()
@@ -279,7 +279,7 @@ class TestBrowserV07Features:
         """Test _get_global_options with headed mode."""
         with patch.dict(os.environ, {"MCP_BROWSER_HEADED": "true"}):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
 
             opts = browser_module._get_global_options()
@@ -288,7 +288,7 @@ class TestBrowserV07Features:
     @pytest.mark.unit
     def test_is_transient_error(self):
         """Test transient error detection."""
-        from kubectl_mcp_tool.tools.browser import _is_transient_error
+        from k8s_mcp.server.tools.browser import _is_transient_error
 
         # Transient errors
         assert _is_transient_error("ECONNREFUSED") is True
@@ -303,9 +303,9 @@ class TestBrowserV07Features:
     @pytest.mark.unit
     def test_run_browser_with_retry_success(self):
         """Test retry logic with successful result."""
-        from kubectl_mcp_tool.tools.browser import _run_browser_with_retry
+        from k8s_mcp.server.tools.browser import _run_browser_with_retry
 
-        with patch("kubectl_mcp_tool.tools.browser._run_browser") as mock_run:
+        with patch("k8s_mcp.server.tools.browser._run_browser") as mock_run:
             mock_run.return_value = {"success": True, "output": "OK"}
 
             result = _run_browser_with_retry(["open", "https://example.com"])
@@ -317,9 +317,9 @@ class TestBrowserV07Features:
     @pytest.mark.unit
     def test_run_browser_with_retry_transient_error(self):
         """Test retry logic with transient error."""
-        from kubectl_mcp_tool.tools.browser import _run_browser_with_retry
+        from k8s_mcp.server.tools.browser import _run_browser_with_retry
 
-        with patch("kubectl_mcp_tool.tools.browser._run_browser") as mock_run:
+        with patch("k8s_mcp.server.tools.browser._run_browser") as mock_run:
             with patch("time.sleep"):  # Skip actual sleep
                 # First two calls fail with transient error, third succeeds
                 mock_run.side_effect = [
@@ -336,9 +336,9 @@ class TestBrowserV07Features:
     @pytest.mark.unit
     def test_run_browser_with_retry_non_transient_error(self):
         """Test retry logic with non-transient error (no retry)."""
-        from kubectl_mcp_tool.tools.browser import _run_browser_with_retry
+        from k8s_mcp.server.tools.browser import _run_browser_with_retry
 
-        with patch("kubectl_mcp_tool.tools.browser._run_browser") as mock_run:
+        with patch("k8s_mcp.server.tools.browser._run_browser") as mock_run:
             mock_run.return_value = {"success": False, "error": "Invalid argument"}
 
             result = _run_browser_with_retry(["open", "https://example.com"])
@@ -352,7 +352,7 @@ class TestBrowserV07Features:
         """Test debug logging."""
         with patch.dict(os.environ, {"MCP_BROWSER_DEBUG": "true"}):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
 
             assert browser_module.MCP_BROWSER_DEBUG is True
@@ -365,7 +365,7 @@ class TestBrowserV07Features:
             "MCP_BROWSER_RETRY_DELAY": "2000"
         }):
             import importlib
-            import kubectl_mcp_tool.tools.browser as browser_module
+            import k8s_mcp.server.tools.browser as browser_module
             importlib.reload(browser_module)
 
             assert browser_module.MCP_BROWSER_MAX_RETRIES == 5
@@ -378,7 +378,7 @@ class TestK8sIntegration:
     @pytest.mark.unit
     def test_get_ingress_url_not_found(self):
         """Test _get_ingress_url when no ingress exists."""
-        from kubectl_mcp_tool.tools.browser import _get_ingress_url
+        from k8s_mcp.server.tools.browser import _get_ingress_url
 
         with patch("kubernetes.config.load_kube_config"):
             with patch("kubernetes.client.NetworkingV1Api") as mock_api:
@@ -392,7 +392,7 @@ class TestK8sIntegration:
     @pytest.mark.unit
     def test_get_service_url_loadbalancer(self):
         """Test _get_service_url for LoadBalancer type."""
-        from kubectl_mcp_tool.tools.browser import _get_service_url
+        from k8s_mcp.server.tools.browser import _get_service_url
 
         with patch("kubernetes.config.load_kube_config"):
             with patch("kubernetes.client.CoreV1Api") as mock_api:
@@ -411,7 +411,7 @@ class TestK8sIntegration:
     @pytest.mark.unit
     def test_get_service_url_nodeport(self):
         """Test _get_service_url for NodePort type."""
-        from kubectl_mcp_tool.tools.browser import _get_service_url
+        from k8s_mcp.server.tools.browser import _get_service_url
 
         with patch("kubernetes.config.load_kube_config"):
             with patch("kubernetes.client.CoreV1Api") as mock_api:
@@ -433,7 +433,7 @@ class TestCloudConsole:
     @pytest.mark.unit
     def test_open_cloud_console_eks(self):
         """Test EKS console URL generation."""
-        from kubectl_mcp_tool.tools.browser import register_browser_tools
+        from k8s_mcp.server.tools.browser import register_browser_tools
         from fastmcp import FastMCP
         import asyncio
 
@@ -446,10 +446,10 @@ class TestCloudConsole:
     @pytest.mark.unit
     def test_open_cloud_console_invalid_provider(self):
         """Test handling of invalid cloud provider."""
-        from kubectl_mcp_tool.tools.browser import _run_browser
+        from k8s_mcp.server.tools.browser import _run_browser
 
         # Mock the browser command to simulate the tool behavior
-        with patch("kubectl_mcp_tool.tools.browser._run_browser") as mock:
+        with patch("k8s_mcp.server.tools.browser._run_browser") as mock:
             mock.return_value = {"success": False, "error": "Unknown provider"}
             result = mock(["open", "invalid-provider"])
             assert result["success"] is False
@@ -462,14 +462,14 @@ class TestServerIntegration:
     def test_browser_tools_not_registered_when_disabled(self):
         """Verify browser tools are not registered when disabled."""
         with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "false"}):
-            with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+            with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                 with patch("kubernetes.config.load_kube_config"):
                     # Force reload to pick up env change
                     import importlib
-                    import kubectl_mcp_tool.tools.browser as browser_module
+                    import k8s_mcp.server.tools.browser as browser_module
                     importlib.reload(browser_module)
 
-                    from kubectl_mcp_tool.mcp_server import MCPServer
+                    from k8s_mcp.server.core import MCPServer
                     server = MCPServer(name="test")
 
                     import asyncio
@@ -485,17 +485,18 @@ class TestServerIntegration:
         """Verify browser tools are registered when enabled and available."""
         with patch.dict(os.environ, {"MCP_BROWSER_ENABLED": "true"}):
             with patch("shutil.which", return_value="/usr/bin/agent-browser"):
-                with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+                with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
                     with patch("kubernetes.config.load_kube_config"):
                         # Force reload to pick up env change
                         import importlib
-                        import kubectl_mcp_tool.tools.browser as browser_module
+                        import k8s_mcp.server.tools.browser as browser_module
                         importlib.reload(browser_module)
                         browser_module.BROWSER_AVAILABLE = True
                         browser_module.BROWSER_ENABLED = True
 
-                        from kubectl_mcp_tool.mcp_server import MCPServer
-                        server = MCPServer(name="test")
+                        from k8s_mcp.server.core import MCPServer
+                        with patch.dict(os.environ, {"MCP_ENABLE_TOOLS": "browser"}):
+                            server = MCPServer(name="test")
 
                         import asyncio
                         tools = asyncio.run(server.server.list_tools())

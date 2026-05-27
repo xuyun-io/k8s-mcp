@@ -1,7 +1,7 @@
 """Tests for safety mode implementation."""
 
 import pytest
-from kubectl_mcp_tool.safety import (
+from k8s_mcp.server.safety import (
     SafetyMode,
     get_safety_mode,
     set_safety_mode,

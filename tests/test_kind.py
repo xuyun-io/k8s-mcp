@@ -16,7 +16,7 @@ class TestKindHelpers:
     @pytest.mark.unit
     def test_kind_module_imports(self):
         """Test that kind module can be imported."""
-        from kubectl_mcp_tool.tools.kind import (
+        from k8s_mcp.server.tools.kind import (
             register_kind_tools,
             _kind_available,
             _get_kind_version,
@@ -94,7 +94,7 @@ class TestKindHelpers:
     @pytest.mark.unit
     def test_kind_available_when_installed(self):
         """Test _kind_available returns True when CLI is installed."""
-        from kubectl_mcp_tool.tools.kind import _kind_available
+        from k8s_mcp.server.tools.kind import _kind_available
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0)
@@ -104,7 +104,7 @@ class TestKindHelpers:
     @pytest.mark.unit
     def test_kind_available_when_not_installed(self):
         """Test _kind_available returns False when CLI is not installed."""
-        from kubectl_mcp_tool.tools.kind import _kind_available
+        from k8s_mcp.server.tools.kind import _kind_available
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -114,7 +114,7 @@ class TestKindHelpers:
     @pytest.mark.unit
     def test_get_kind_version(self):
         """Test _get_kind_version extracts version correctly."""
-        from kubectl_mcp_tool.tools.kind import _get_kind_version
+        from k8s_mcp.server.tools.kind import _get_kind_version
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -127,7 +127,7 @@ class TestKindHelpers:
     @pytest.mark.unit
     def test_get_kind_version_not_installed(self):
         """Test _get_kind_version returns None when not installed."""
-        from kubectl_mcp_tool.tools.kind import _get_kind_version
+        from k8s_mcp.server.tools.kind import _get_kind_version
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -137,7 +137,7 @@ class TestKindHelpers:
     @pytest.mark.unit
     def test_run_kind_not_available(self):
         """Test _run_kind returns error when CLI not available."""
-        from kubectl_mcp_tool.tools.kind import _run_kind
+        from k8s_mcp.server.tools.kind import _run_kind
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -148,7 +148,7 @@ class TestKindHelpers:
     @pytest.mark.unit
     def test_run_kind_success(self):
         """Test _run_kind returns success on successful command."""
-        from kubectl_mcp_tool.tools.kind import _run_kind
+        from k8s_mcp.server.tools.kind import _run_kind
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -163,7 +163,7 @@ class TestKindHelpers:
     @pytest.mark.unit
     def test_run_kind_timeout(self):
         """Test _run_kind handles timeout."""
-        from kubectl_mcp_tool.tools.kind import _run_kind
+        from k8s_mcp.server.tools.kind import _run_kind
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = [
@@ -181,7 +181,7 @@ class TestKindDetect:
     @pytest.mark.unit
     def test_kind_detect_installed(self):
         """Test kind_detect when kind is installed."""
-        from kubectl_mcp_tool.tools.kind import kind_detect
+        from k8s_mcp.server.tools.kind import kind_detect
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -197,7 +197,7 @@ class TestKindDetect:
     @pytest.mark.unit
     def test_kind_detect_not_installed(self):
         """Test kind_detect when kind is not installed."""
-        from kubectl_mcp_tool.tools.kind import kind_detect
+        from k8s_mcp.server.tools.kind import kind_detect
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -214,10 +214,10 @@ class TestKindListClusters:
     @pytest.mark.unit
     def test_kind_list_clusters_success(self):
         """Test kind_list_clusters returns cluster list."""
-        from kubectl_mcp_tool.tools.kind import kind_list_clusters
+        from k8s_mcp.server.tools.kind import kind_list_clusters
 
-        with patch("kubectl_mcp_tool.tools.kind._kind_available", return_value=True):
-            with patch("kubectl_mcp_tool.tools.kind.subprocess.run") as mock_run:
+        with patch("k8s_mcp.server.tools.kind._kind_available", return_value=True):
+            with patch("k8s_mcp.server.tools.kind.subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(
                     returncode=0,
                     stdout="dev-cluster\ntest-cluster",
@@ -232,10 +232,10 @@ class TestKindListClusters:
     @pytest.mark.unit
     def test_kind_list_clusters_empty(self):
         """Test kind_list_clusters returns empty list."""
-        from kubectl_mcp_tool.tools.kind import kind_list_clusters
+        from k8s_mcp.server.tools.kind import kind_list_clusters
 
-        with patch("kubectl_mcp_tool.tools.kind._kind_available", return_value=True):
-            with patch("kubectl_mcp_tool.tools.kind.subprocess.run") as mock_run:
+        with patch("k8s_mcp.server.tools.kind._kind_available", return_value=True):
+            with patch("k8s_mcp.server.tools.kind.subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(
                     returncode=0,
                     stdout="",
@@ -252,10 +252,10 @@ class TestKindGetNodes:
     @pytest.mark.unit
     def test_kind_get_nodes_success(self):
         """Test kind_get_nodes returns node list."""
-        from kubectl_mcp_tool.tools.kind import kind_get_nodes
+        from k8s_mcp.server.tools.kind import kind_get_nodes
 
-        with patch("kubectl_mcp_tool.tools.kind._kind_available", return_value=True):
-            with patch("kubectl_mcp_tool.tools.kind.subprocess.run") as mock_run:
+        with patch("k8s_mcp.server.tools.kind._kind_available", return_value=True):
+            with patch("k8s_mcp.server.tools.kind.subprocess.run") as mock_run:
                 mock_run.return_value = MagicMock(
                     returncode=0,
                     stdout="kind-control-plane\nkind-worker\nkind-worker2",
@@ -273,7 +273,7 @@ class TestKindCreateCluster:
     @pytest.mark.unit
     def test_kind_create_cluster_basic(self):
         """Test kind_create_cluster with basic options."""
-        from kubectl_mcp_tool.tools.kind import kind_create_cluster
+        from k8s_mcp.server.tools.kind import kind_create_cluster
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -288,7 +288,7 @@ class TestKindCreateCluster:
     @pytest.mark.unit
     def test_kind_create_cluster_with_options(self):
         """Test kind_create_cluster with all options."""
-        from kubectl_mcp_tool.tools.kind import kind_create_cluster
+        from k8s_mcp.server.tools.kind import kind_create_cluster
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -310,7 +310,7 @@ class TestKindDeleteCluster:
     @pytest.mark.unit
     def test_kind_delete_cluster_success(self):
         """Test kind_delete_cluster deletes cluster."""
-        from kubectl_mcp_tool.tools.kind import kind_delete_cluster
+        from k8s_mcp.server.tools.kind import kind_delete_cluster
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -329,7 +329,7 @@ class TestKindDeleteAllClusters:
     @pytest.mark.unit
     def test_kind_delete_all_clusters_success(self):
         """Test kind_delete_all_clusters deletes all clusters."""
-        from kubectl_mcp_tool.tools.kind import kind_delete_all_clusters
+        from k8s_mcp.server.tools.kind import kind_delete_all_clusters
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -348,7 +348,7 @@ class TestKindLoadImage:
     @pytest.mark.unit
     def test_kind_load_image_success(self):
         """Test kind_load_image loads images."""
-        from kubectl_mcp_tool.tools.kind import kind_load_image
+        from k8s_mcp.server.tools.kind import kind_load_image
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -363,7 +363,7 @@ class TestKindLoadImage:
     @pytest.mark.unit
     def test_kind_load_image_no_images(self):
         """Test kind_load_image with no images."""
-        from kubectl_mcp_tool.tools.kind import kind_load_image
+        from k8s_mcp.server.tools.kind import kind_load_image
 
         result = kind_load_image(images=[], name="test")
         assert result["success"] is False
@@ -376,7 +376,7 @@ class TestKindLoadImageArchive:
     @pytest.mark.unit
     def test_kind_load_image_archive_file_not_found(self):
         """Test kind_load_image_archive with missing file."""
-        from kubectl_mcp_tool.tools.kind import kind_load_image_archive
+        from k8s_mcp.server.tools.kind import kind_load_image_archive
 
         result = kind_load_image_archive(archive="/nonexistent/file.tar", name="test")
         assert result["success"] is False
@@ -389,16 +389,16 @@ class TestKindToolsRegistration:
     @pytest.mark.unit
     def test_kind_tools_import(self):
         """Test that kind tools can be imported."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
+        from k8s_mcp.server.tools.kind import register_kind_tools
         assert callable(register_kind_tools)
 
     @pytest.mark.unit
     @pytest.mark.asyncio
     async def test_kind_tools_register(self, mock_all_kubernetes_apis):
         """Test that kind tools register correctly."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         tools = await server.server.list_tools()
@@ -445,9 +445,9 @@ class TestKindToolsRegistration:
     @pytest.mark.asyncio
     async def test_kind_tool_count(self, mock_all_kubernetes_apis):
         """Test that correct number of kind tools are registered."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         tools = await server.server.list_tools()
@@ -458,9 +458,9 @@ class TestKindToolsRegistration:
     @pytest.mark.unit
     def test_kind_non_destructive_mode(self, mock_all_kubernetes_apis):
         """Test that kind write operations are blocked in non-destructive mode."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test", disable_destructive=True)
 
         assert server.non_destructive is True
@@ -469,9 +469,9 @@ class TestKindToolsRegistration:
     @pytest.mark.asyncio
     async def test_kind_tools_have_descriptions(self, mock_all_kubernetes_apis):
         """Test that all kind tools have descriptions."""
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
 
-        with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies", return_value=True):
+        with patch("k8s_mcp.server.core.MCPServer._check_dependencies", return_value=True):
             server = MCPServer(name="test")
 
         tools = await server.server.list_tools()
@@ -490,8 +490,8 @@ class TestKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_create_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that kind_create_cluster_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.kind import register_kind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -515,8 +515,8 @@ class TestKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_delete_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that kind_delete_cluster_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.kind import register_kind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -540,8 +540,8 @@ class TestKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_delete_all_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that kind_delete_all_clusters_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.kind import register_kind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -565,8 +565,8 @@ class TestKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_load_image_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that kind_load_image_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.kind import register_kind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -590,7 +590,7 @@ class TestKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_read_operations_allowed_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that read operations work in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
+        from k8s_mcp.server.tools.kind import register_kind_tools
 
         try:
             from fastmcp import FastMCP
@@ -614,9 +614,9 @@ class TestKindClusterInfo:
     @pytest.mark.unit
     def test_kind_cluster_info_cluster_not_found(self):
         """Test kind_cluster_info when cluster not found."""
-        from kubectl_mcp_tool.tools.kind import kind_cluster_info
+        from k8s_mcp.server.tools.kind import kind_cluster_info
 
-        with patch("kubectl_mcp_tool.tools.kind.kind_list_clusters") as mock_list:
+        with patch("k8s_mcp.server.tools.kind.kind_list_clusters") as mock_list:
             mock_list.return_value = {
                 "success": True,
                 "clusters": ["other-cluster"]
@@ -628,20 +628,20 @@ class TestKindClusterInfo:
     @pytest.mark.unit
     def test_kind_cluster_info_success(self):
         """Test kind_cluster_info returns cluster info."""
-        from kubectl_mcp_tool.tools.kind import kind_cluster_info
+        from k8s_mcp.server.tools.kind import kind_cluster_info
 
-        with patch("kubectl_mcp_tool.tools.kind.kind_list_clusters") as mock_list:
+        with patch("k8s_mcp.server.tools.kind.kind_list_clusters") as mock_list:
             mock_list.return_value = {
                 "success": True,
                 "clusters": ["test-cluster"]
             }
-            with patch("kubectl_mcp_tool.tools.kind.kind_get_nodes") as mock_nodes:
+            with patch("k8s_mcp.server.tools.kind.kind_get_nodes") as mock_nodes:
                 mock_nodes.return_value = {
                     "success": True,
                     "nodes": ["test-cluster-control-plane"],
                     "total": 1
                 }
-                with patch("kubectl_mcp_tool.tools.kind.kind_get_kubeconfig") as mock_kubeconfig:
+                with patch("k8s_mcp.server.tools.kind.kind_get_kubeconfig") as mock_kubeconfig:
                     mock_kubeconfig.return_value = {
                         "success": True,
                         "kubeconfig": "apiVersion: v1\n..."
@@ -658,7 +658,7 @@ class TestKindConfigValidate:
     @pytest.mark.unit
     def test_kind_config_validate_file_not_found(self):
         """Test kind_config_validate with missing file."""
-        from kubectl_mcp_tool.tools.kind import kind_config_validate
+        from k8s_mcp.server.tools.kind import kind_config_validate
 
         result = kind_config_validate("/nonexistent/config.yaml")
         assert result["success"] is False
@@ -667,7 +667,7 @@ class TestKindConfigValidate:
     @pytest.mark.unit
     def test_kind_config_validate_valid_config(self, tmp_path):
         """Test kind_config_validate with valid config."""
-        from kubectl_mcp_tool.tools.kind import kind_config_validate
+        from k8s_mcp.server.tools.kind import kind_config_validate
 
         config_file = tmp_path / "kind.yaml"
         config_file.write_text("""
@@ -686,7 +686,7 @@ nodes:
     @pytest.mark.unit
     def test_kind_config_validate_invalid_kind(self, tmp_path):
         """Test kind_config_validate with invalid kind field."""
-        from kubectl_mcp_tool.tools.kind import kind_config_validate
+        from k8s_mcp.server.tools.kind import kind_config_validate
 
         config_file = tmp_path / "kind.yaml"
         config_file.write_text("""
@@ -704,7 +704,7 @@ class TestKindConfigGenerate:
     @pytest.mark.unit
     def test_kind_config_generate_default(self):
         """Test kind_config_generate with default options."""
-        from kubectl_mcp_tool.tools.kind import kind_config_generate
+        from k8s_mcp.server.tools.kind import kind_config_generate
 
         result = kind_config_generate()
         assert result["success"] is True
@@ -716,7 +716,7 @@ class TestKindConfigGenerate:
     @pytest.mark.unit
     def test_kind_config_generate_multi_node(self):
         """Test kind_config_generate with multiple nodes."""
-        from kubectl_mcp_tool.tools.kind import kind_config_generate
+        from k8s_mcp.server.tools.kind import kind_config_generate
 
         result = kind_config_generate(workers=2, control_planes=1)
         assert result["success"] is True
@@ -726,7 +726,7 @@ class TestKindConfigGenerate:
     @pytest.mark.unit
     def test_kind_config_generate_with_ingress(self):
         """Test kind_config_generate with ingress enabled."""
-        from kubectl_mcp_tool.tools.kind import kind_config_generate
+        from k8s_mcp.server.tools.kind import kind_config_generate
 
         result = kind_config_generate(ingress=True)
         assert result["success"] is True
@@ -736,7 +736,7 @@ class TestKindConfigGenerate:
     @pytest.mark.unit
     def test_kind_config_generate_with_registry(self):
         """Test kind_config_generate with registry enabled."""
-        from kubectl_mcp_tool.tools.kind import kind_config_generate
+        from k8s_mcp.server.tools.kind import kind_config_generate
 
         result = kind_config_generate(registry=True)
         assert result["success"] is True
@@ -750,7 +750,7 @@ class TestKindAvailableImages:
     @pytest.mark.unit
     def test_kind_available_images(self):
         """Test kind_available_images returns image list."""
-        from kubectl_mcp_tool.tools.kind import kind_available_images
+        from k8s_mcp.server.tools.kind import kind_available_images
 
         result = kind_available_images()
         assert result["success"] is True
@@ -766,9 +766,9 @@ class TestKindRegistryCreate:
     @pytest.mark.unit
     def test_kind_registry_create_already_exists(self):
         """Test kind_registry_create when registry exists."""
-        from kubectl_mcp_tool.tools.kind import kind_registry_create
+        from k8s_mcp.server.tools.kind import kind_registry_create
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {"success": True, "output": "container_id"}
             result = kind_registry_create()
             assert result["success"] is True
@@ -777,9 +777,9 @@ class TestKindRegistryCreate:
     @pytest.mark.unit
     def test_kind_registry_create_new(self):
         """Test kind_registry_create creates new registry."""
-        from kubectl_mcp_tool.tools.kind import kind_registry_create
+        from k8s_mcp.server.tools.kind import kind_registry_create
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.side_effect = [
                 {"success": True, "output": ""},
                 {"success": True, "output": ""},
@@ -797,9 +797,9 @@ class TestKindRegistryStatus:
     @pytest.mark.unit
     def test_kind_registry_status_not_found(self):
         """Test kind_registry_status when registry not found."""
-        from kubectl_mcp_tool.tools.kind import kind_registry_status
+        from k8s_mcp.server.tools.kind import kind_registry_status
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {"success": False, "error": "not found"}
             result = kind_registry_status()
             assert result["success"] is False
@@ -808,9 +808,9 @@ class TestKindRegistryStatus:
     @pytest.mark.unit
     def test_kind_registry_status_running(self):
         """Test kind_registry_status when registry is running."""
-        from kubectl_mcp_tool.tools.kind import kind_registry_status
+        from k8s_mcp.server.tools.kind import kind_registry_status
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {
                 "success": True,
                 "output": json.dumps({
@@ -833,7 +833,7 @@ class TestKindNodeExec:
     @pytest.mark.unit
     def test_kind_node_exec_missing_node(self):
         """Test kind_node_exec with missing node."""
-        from kubectl_mcp_tool.tools.kind import kind_node_exec
+        from k8s_mcp.server.tools.kind import kind_node_exec
 
         result = kind_node_exec(node="", command="ls")
         assert result["success"] is False
@@ -842,7 +842,7 @@ class TestKindNodeExec:
     @pytest.mark.unit
     def test_kind_node_exec_missing_command(self):
         """Test kind_node_exec with missing command."""
-        from kubectl_mcp_tool.tools.kind import kind_node_exec
+        from k8s_mcp.server.tools.kind import kind_node_exec
 
         result = kind_node_exec(node="kind-control-plane", command="")
         assert result["success"] is False
@@ -851,14 +851,14 @@ class TestKindNodeExec:
     @pytest.mark.unit
     def test_kind_node_exec_success(self):
         """Test kind_node_exec succeeds."""
-        from kubectl_mcp_tool.tools.kind import kind_node_exec
+        from k8s_mcp.server.tools.kind import kind_node_exec
 
-        with patch("kubectl_mcp_tool.tools.kind.kind_get_nodes") as mock_nodes:
+        with patch("k8s_mcp.server.tools.kind.kind_get_nodes") as mock_nodes:
             mock_nodes.return_value = {
                 "success": True,
                 "nodes": ["kind-control-plane"]
             }
-            with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+            with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
                 mock_docker.return_value = {"success": True, "output": "output"}
                 result = kind_node_exec(node="kind-control-plane", command="ls")
                 assert result["success"] is True
@@ -871,7 +871,7 @@ class TestKindNodeLogs:
     @pytest.mark.unit
     def test_kind_node_logs_missing_node(self):
         """Test kind_node_logs with missing node."""
-        from kubectl_mcp_tool.tools.kind import kind_node_logs
+        from k8s_mcp.server.tools.kind import kind_node_logs
 
         result = kind_node_logs(node="")
         assert result["success"] is False
@@ -880,9 +880,9 @@ class TestKindNodeLogs:
     @pytest.mark.unit
     def test_kind_node_logs_success(self):
         """Test kind_node_logs succeeds."""
-        from kubectl_mcp_tool.tools.kind import kind_node_logs
+        from k8s_mcp.server.tools.kind import kind_node_logs
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {"success": True, "output": "log output"}
             result = kind_node_logs(node="kind-control-plane")
             assert result["success"] is True
@@ -895,7 +895,7 @@ class TestKindNodeInspect:
     @pytest.mark.unit
     def test_kind_node_inspect_missing_node(self):
         """Test kind_node_inspect with missing node."""
-        from kubectl_mcp_tool.tools.kind import kind_node_inspect
+        from k8s_mcp.server.tools.kind import kind_node_inspect
 
         result = kind_node_inspect(node="")
         assert result["success"] is False
@@ -904,9 +904,9 @@ class TestKindNodeInspect:
     @pytest.mark.unit
     def test_kind_node_inspect_success(self):
         """Test kind_node_inspect succeeds."""
-        from kubectl_mcp_tool.tools.kind import kind_node_inspect
+        from k8s_mcp.server.tools.kind import kind_node_inspect
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {
                 "success": True,
                 "output": json.dumps({
@@ -928,7 +928,7 @@ class TestKindNodeRestart:
     @pytest.mark.unit
     def test_kind_node_restart_missing_node(self):
         """Test kind_node_restart with missing node."""
-        from kubectl_mcp_tool.tools.kind import kind_node_restart
+        from k8s_mcp.server.tools.kind import kind_node_restart
 
         result = kind_node_restart(node="")
         assert result["success"] is False
@@ -937,9 +937,9 @@ class TestKindNodeRestart:
     @pytest.mark.unit
     def test_kind_node_restart_success(self):
         """Test kind_node_restart succeeds."""
-        from kubectl_mcp_tool.tools.kind import kind_node_restart
+        from k8s_mcp.server.tools.kind import kind_node_restart
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {"success": True, "output": ""}
             result = kind_node_restart(node="kind-control-plane")
             assert result["success"] is True
@@ -952,9 +952,9 @@ class TestKindNetworkInspect:
     @pytest.mark.unit
     def test_kind_network_inspect_not_found(self):
         """Test kind_network_inspect when network not found."""
-        from kubectl_mcp_tool.tools.kind import kind_network_inspect
+        from k8s_mcp.server.tools.kind import kind_network_inspect
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {"success": False, "error": "not found"}
             result = kind_network_inspect()
             assert result["success"] is False
@@ -962,9 +962,9 @@ class TestKindNetworkInspect:
     @pytest.mark.unit
     def test_kind_network_inspect_success(self):
         """Test kind_network_inspect succeeds."""
-        from kubectl_mcp_tool.tools.kind import kind_network_inspect
+        from k8s_mcp.server.tools.kind import kind_network_inspect
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {
                 "success": True,
                 "output": json.dumps([{
@@ -988,14 +988,14 @@ class TestKindPortMappings:
     @pytest.mark.unit
     def test_kind_port_mappings_success(self):
         """Test kind_port_mappings returns mappings."""
-        from kubectl_mcp_tool.tools.kind import kind_port_mappings
+        from k8s_mcp.server.tools.kind import kind_port_mappings
 
-        with patch("kubectl_mcp_tool.tools.kind.kind_get_nodes") as mock_nodes:
+        with patch("k8s_mcp.server.tools.kind.kind_get_nodes") as mock_nodes:
             mock_nodes.return_value = {
                 "success": True,
                 "nodes": ["kind-control-plane"]
             }
-            with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+            with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
                 mock_docker.return_value = {
                     "success": True,
                     "output": json.dumps({
@@ -1013,7 +1013,7 @@ class TestKindIngressSetup:
     @pytest.mark.unit
     def test_kind_ingress_setup_invalid_type(self):
         """Test kind_ingress_setup with invalid type."""
-        from kubectl_mcp_tool.tools.kind import kind_ingress_setup
+        from k8s_mcp.server.tools.kind import kind_ingress_setup
 
         result = kind_ingress_setup(ingress_type="invalid")
         assert result["success"] is False
@@ -1022,9 +1022,9 @@ class TestKindIngressSetup:
     @pytest.mark.unit
     def test_kind_ingress_setup_cluster_not_found(self):
         """Test kind_ingress_setup when cluster not found."""
-        from kubectl_mcp_tool.tools.kind import kind_ingress_setup
+        from k8s_mcp.server.tools.kind import kind_ingress_setup
 
-        with patch("kubectl_mcp_tool.tools.kind.kind_list_clusters") as mock_list:
+        with patch("k8s_mcp.server.tools.kind.kind_list_clusters") as mock_list:
             mock_list.return_value = {"success": True, "clusters": []}
             result = kind_ingress_setup(cluster="nonexistent")
             assert result["success"] is False
@@ -1036,9 +1036,9 @@ class TestKindClusterStatus:
     @pytest.mark.unit
     def test_kind_cluster_status_not_found(self):
         """Test kind_cluster_status when cluster not found."""
-        from kubectl_mcp_tool.tools.kind import kind_cluster_status
+        from k8s_mcp.server.tools.kind import kind_cluster_status
 
-        with patch("kubectl_mcp_tool.tools.kind.kind_list_clusters") as mock_list:
+        with patch("k8s_mcp.server.tools.kind.kind_list_clusters") as mock_list:
             mock_list.return_value = {"success": True, "clusters": []}
             result = kind_cluster_status(name="nonexistent")
             assert result["success"] is False
@@ -1051,9 +1051,9 @@ class TestKindImagesList:
     @pytest.mark.unit
     def test_kind_images_list_no_nodes(self):
         """Test kind_images_list when no nodes."""
-        from kubectl_mcp_tool.tools.kind import kind_images_list
+        from k8s_mcp.server.tools.kind import kind_images_list
 
-        with patch("kubectl_mcp_tool.tools.kind.kind_get_nodes") as mock_nodes:
+        with patch("k8s_mcp.server.tools.kind.kind_get_nodes") as mock_nodes:
             mock_nodes.return_value = {"success": True, "nodes": []}
             result = kind_images_list()
             assert result["success"] is False
@@ -1065,9 +1065,9 @@ class TestKindProviderInfo:
     @pytest.mark.unit
     def test_kind_provider_info_success(self):
         """Test kind_provider_info returns provider details."""
-        from kubectl_mcp_tool.tools.kind import kind_provider_info
+        from k8s_mcp.server.tools.kind import kind_provider_info
 
-        with patch("kubectl_mcp_tool.tools.kind._run_docker") as mock_docker:
+        with patch("k8s_mcp.server.tools.kind._run_docker") as mock_docker:
             mock_docker.return_value = {
                 "success": True,
                 "output": json.dumps({
@@ -1087,7 +1087,7 @@ class TestRunDocker:
     @pytest.mark.unit
     def test_run_docker_success(self):
         """Test _run_docker returns success."""
-        from kubectl_mcp_tool.tools.kind import _run_docker
+        from k8s_mcp.server.tools.kind import _run_docker
 
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(
@@ -1102,7 +1102,7 @@ class TestRunDocker:
     @pytest.mark.unit
     def test_run_docker_not_available(self):
         """Test _run_docker when Docker not available."""
-        from kubectl_mcp_tool.tools.kind import _run_docker
+        from k8s_mcp.server.tools.kind import _run_docker
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
@@ -1113,7 +1113,7 @@ class TestRunDocker:
     @pytest.mark.unit
     def test_run_docker_timeout(self):
         """Test _run_docker handles timeout."""
-        from kubectl_mcp_tool.tools.kind import _run_docker
+        from k8s_mcp.server.tools.kind import _run_docker
 
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = subprocess.TimeoutExpired(cmd="docker", timeout=60)
@@ -1129,8 +1129,8 @@ class TestNewKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_registry_create_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that kind_registry_create_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.kind import register_kind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -1154,8 +1154,8 @@ class TestNewKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_node_exec_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that kind_node_exec_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.kind import register_kind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -1179,8 +1179,8 @@ class TestNewKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_node_restart_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that kind_node_restart_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.kind import register_kind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -1204,8 +1204,8 @@ class TestNewKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_ingress_setup_blocked_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that kind_ingress_setup_tool is blocked in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
-        from kubectl_mcp_tool.safety import set_safety_mode, SafetyMode
+        from k8s_mcp.server.tools.kind import register_kind_tools
+        from k8s_mcp.server.safety import set_safety_mode, SafetyMode
 
         try:
             from fastmcp import FastMCP
@@ -1229,7 +1229,7 @@ class TestNewKindNonDestructiveBlocking:
     @pytest.mark.asyncio
     async def test_read_operations_allowed_in_non_destructive(self, mock_all_kubernetes_apis):
         """Test that new read operations work in non-destructive mode."""
-        from kubectl_mcp_tool.tools.kind import register_kind_tools
+        from k8s_mcp.server.tools.kind import register_kind_tools
 
         try:
             from fastmcp import FastMCP

@@ -274,9 +274,9 @@ def mock_helm_subprocess():
 @pytest.fixture
 def mcp_server(mock_kube_config):
     """Create an MCPServer instance with mocked dependencies."""
-    with patch("kubectl_mcp_tool.mcp_server.MCPServer._check_dependencies") as mock_deps:
+    with patch("k8s_mcp.server.core.MCPServer._check_dependencies") as mock_deps:
         mock_deps.return_value = True
-        from kubectl_mcp_tool.mcp_server import MCPServer
+        from k8s_mcp.server.core import MCPServer
         server = MCPServer(name="test-server")
         yield server
 

@@ -23,6 +23,7 @@ from .schema import (
     MetricsConfig,
     SafetyConfig,
     ServerConfig,
+    ToolsConfig,
     validate_config,
 )
 
@@ -155,6 +156,8 @@ def _apply_env_overrides(config_dict: Dict[str, Any]) -> Dict[str, Any]:
         "KUBECONFIG": ("kubernetes", "kubeconfig"),
         "MCP_K8S_CONTEXT": ("kubernetes", "context"),
         "MCP_K8S_NAMESPACE": ("kubernetes", "default_namespace"),
+        # Tools settings
+        "MCP_ENABLE_TOOLS": ("tools", "enabled", lambda x: [s.strip() for s in x.split(",") if s.strip()]),
     }
 
     for env_var, mapping in env_mappings.items():
@@ -197,9 +200,10 @@ def _dict_to_config(config_dict: Dict[str, Any]) -> Config:
     metrics = make_dataclass(MetricsConfig, config_dict.get("metrics", {}))
     logging_config = make_dataclass(LoggingConfig, config_dict.get("logging", {}))
     kubernetes = make_dataclass(KubernetesConfig, config_dict.get("kubernetes", {}))
+    tools = make_dataclass(ToolsConfig, config_dict.get("tools", {}))
 
     # Collect custom/unknown sections
-    known_sections = {"server", "safety", "browser", "metrics", "logging", "kubernetes"}
+    known_sections = {"server", "safety", "browser", "metrics", "logging", "kubernetes", "tools"}
     custom = {k: v for k, v in config_dict.items() if k not in known_sections}
 
     return Config(
@@ -209,6 +213,7 @@ def _dict_to_config(config_dict: Dict[str, Any]) -> Config:
         metrics=metrics,
         logging=logging_config,
         kubernetes=kubernetes,
+        tools=tools,
         custom=custom,
     )
 
