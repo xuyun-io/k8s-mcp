@@ -1,0 +1,148 @@
+name: Auto Release on Push
+
+on:
+  push:
+    branches: [master, main]
+
+jobs:
+  auto-release:
+    name: Auto Version Bump, Tag, Release and Publish
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip if bot commit
+        id: skip-check
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMITTER=$(git log -1 --pretty=%cn)
+          if echo "$COMMIT_MSG" | grep -q "\[skip ci\]"; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Skipping: commit message contains [skip ci]"
+            exit 0
+          fi
+          if [ "$COMMITTER" = "github-actions[bot]" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "Skipping: committer is github-actions[bot]"
+            exit 0
+          fi
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Compute version
+        if: steps.skip-check.outputs.skip != 'true'
+        id: version
+        run: |
+          BASE_VERSION=$(cat VERSION | tr -d '[:space:]')
+          BUILD=$(git rev-list --count HEAD)
+          # Python: 0.1.2.post47 (PEP 440 compliant)
+          PYTHON_VERSION="${BASE_VERSION}.post${BUILD}"
+          # npm: 0.1.2-build.47 (semver compliant)
+          NPM_VERSION="${BASE_VERSION}-build.${BUILD}"
+          # Tag: v0.1.2-build.47
+          TAG="v${BASE_VERSION}-build.${BUILD}"
+          echo "base=$BASE_VERSION" >> $GITHUB_OUTPUT
+          echo "build=$BUILD" >> $GITHUB_OUTPUT
+          echo "python=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          echo "npm=$NPM_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Computed versions:"
+          echo "  Python: $PYTHON_VERSION"
+          echo "  npm: $NPM_VERSION"
+          echo "  Tag: $TAG"
+
+      - name: Set up Python
+        if: steps.skip-check.outputs.skip != 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update Python version files
+        if: steps.skip-check.outputs.skip != 'true'
+        run: |
+          PYTHON_V="${{ steps.version.outputs.python }}"
+          # Update pyproject.toml
+          sed -i "s/^version = .*/version = \"$PYTHON_V\"/" pyproject.toml
+          # Update __init__.py
+          sed -i "s/^__version__ = .*/__version__ = \"$PYTHON_V\"/" src/k8s_mcp/__init__.py
+          echo "Updated Python version to $PYTHON_V"
+
+      - name: Set up Node.js
+        if: steps.skip-check.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm version
+        if: steps.skip-check.outputs.skip != 'true'
+        run: |
+          NPM_V="${{ steps.version.outputs.npm }}"
+          # Update package.json version directly (npm version creates a git tag which we don't want here)
+          node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json')); pkg.version='$NPM_V'; fs.writeFileSync('package.json', JSON.stringify(pkg,null,2)+'\n');"
+          echo "Updated npm version to $NPM_V"
+
+      - name: Commit version bump
+        if: steps.skip-check.outputs.skip != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml package.json src/k8s_mcp/__init__.py
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: bump version to ${{ steps.version.outputs.python }} [skip ci]"
+          git push
+
+      - name: Create Git tag
+        if: steps.skip-check.outputs.skip != 'true'
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          git tag "$TAG"
+          git push origin "$TAG"
+          echo "Created tag: $TAG"
+
+      - name: Create GitHub Release
+        if: steps.skip-check.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "Release ${{ steps.version.outputs.tag }}"
+          generate_release_notes: true
+
+      - name: Install Python build dependencies
+        if: steps.skip-check.outputs.skip != 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build Python package
+        if: steps.skip-check.outputs.skip != 'true'
+        run: python -m build
+
+      - name: Publish to PyPI
+        if: steps.skip-check.outputs.skip != 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Upload Python artifacts to Release
+        if: steps.skip-check.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+
+      - name: Publish to npm
+        if: steps.skip-check.outputs.skip != 'true'
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
