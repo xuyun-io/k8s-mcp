@@ -2,33 +2,64 @@
 
 This document describes how versioning and releases work for `k8s-mcp`.
 
+## Branch Strategy
+
+We use a **branch-based** workflow to control when builds are published:
+
+| Branch | Purpose | Push Behavior |
+|--------|---------|---------------|
+| `dev` | Daily development | ❌ No publish |
+| `master` | Stable / ready to publish | ✅ Auto-publish dev build |
+| `v*` tag | Production release | ✅ Publish release version |
+
+### Workflow
+
+```bash
+# 1. Develop on dev branch
+git checkout dev
+# ... make changes ...
+git commit -m "feat: update inspect"
+git push origin dev        # Does NOT publish
+
+# 2. Merge to master when ready to publish
+git checkout master
+git merge dev
+git push origin master     # Triggers auto-publish
+
+# 3. Create release tag (optional, for production)
+git tag v0.1.3
+git push origin v0.1.3     # Triggers release publish
+```
+
+---
+
 ## Version Strategy
 
 We use a **dual-track** release system:
 
 | Track | Trigger | Version Format | Registry |
 |-------|---------|---------------|----------|
-| **Development** | Push to `master` | `0.1.2.post47` (PyPI), `0.1.2-build.47` (npm) | PyPI + npm |
-| **Release** | Git tag `v*` | `0.1.3` | PyPI + npm + GitHub Release |
+| **Development** | Push to `master` | `X.Y.Z` (auto-increment patch) | PyPI + npm |
+| **Release** | Git tag `v*` | `X.Y.Z` (from tag) | PyPI + npm + GitHub Release |
 
 ## How It Works
 
 ### 1. Development Builds (Automatic)
 
-Every push to `master` automatically publishes a development build.
+Push to `master` automatically publishes a development build.
 
 **Version calculation:**
 ```
-Base Version (from pyproject.toml) + Commit Count
-Example: 0.1.2 + 47 commits → 0.1.2.post47 (PyPI) / 0.1.2-build.47 (npm)
+Base Version (from pyproject.toml) + Auto-increment patch
+Example: 0.1.2 → 0.1.3 → 0.1.4 (skips existing versions)
 ```
 
 **What happens:**
 1. CI reads the base version from `pyproject.toml`
-2. Counts total commits: `git rev-list --count HEAD`
-3. Publishes to PyPI and npm with the build version
-4. **Does NOT modify source code**
-5. **Does NOT create git tags**
+2. Auto-increments patch until finding an unused version on PyPI
+3. Updates version in source files
+4. Publishes to PyPI and npm
+5. Commits version bump with `[skip ci]`
 
 ### 2. Release Builds (Manual)
 
@@ -51,7 +82,19 @@ Example: v0.1.3
 
 ## How to Release a New Version
 
-### Option 1: Command Line (Recommended)
+### Development Build (Auto)
+
+Just push to `master`:
+
+```bash
+git checkout master
+git merge dev
+git push origin master     # Auto-publishes dev version
+```
+
+### Production Release (Manual)
+
+#### Option 1: Command Line (Recommended)
 
 ```bash
 # 1. Ensure you're on master and up to date
@@ -65,14 +108,14 @@ git push origin v0.1.3
 # Done! CI will handle the rest.
 ```
 
-### Option 2: GitHub Web UI
+#### Option 2: GitHub Web UI
 
 1. Go to **Releases** → **Draft a new release**
 2. Click **Choose a tag** → Type `v0.1.3` → **Create new tag**
 3. Fill in release title and notes (or auto-generate)
 4. Click **Publish release**
 
-### Option 3: GitHub CLI
+#### Option 3: GitHub CLI
 
 ```bash
 gh release create v0.1.3 --generate-notes
@@ -99,8 +142,7 @@ These files contain the current base version:
 ### `.github/workflows/auto-build.yml`
 
 - **Trigger:** Push to `master`/`main`
-- **Skip conditions:** Commit message contains `[skip ci]` or `[release]`
-- **Behavior:** Publishes development build without modifying source
+- **Behavior:** Publishes development build with auto-incremented patch version
 
 ### `.github/workflows/release.yml`
 
@@ -111,25 +153,13 @@ These files contain the current base version:
 
 ## FAQ
 
-### Q: Why are there two different version formats?
+### Q: Why use separate `dev` and `master` branches?
 
-**PyPI** uses PEP 440: `0.1.2.post47`
-**npm** uses semver: `0.1.2-build.47`
+This allows you to push multiple commits during development without triggering publishes. Only when you merge to `master` does the auto-publish happen.
 
-They are different registries with different standards.
+### Q: Can I push directly to `master`?
 
-### Q: Will development builds clutter PyPI/npm?
-
-Yes, every push creates a new version. If this becomes a problem, we can:
-- Switch to publishing dev builds only on schedule (e.g., nightly)
-- Use a separate dev registry
-
-### Q: Can I skip the auto-build?
-
-Yes, include `[skip ci]` in your commit message:
-```bash
-git commit -m "docs: update README [skip ci]"
-```
+Yes, but every push will trigger a publish. Use `dev` branch for work-in-progress.
 
 ### Q: What if the tag version doesn't match pyproject.toml?
 

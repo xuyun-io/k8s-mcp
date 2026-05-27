@@ -6,16 +6,19 @@ based on pod counts from Prometheus.
 """
 
 import logging
-import os
 import re
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 
 from mcp.types import ToolAnnotations
 
-from ..k8s_config import get_k8s_client
-from ..structured import structured_response
-from .prometheus import _query_prometheus_api
+from k8s_mcp.server.k8s_config import get_k8s_client
+from k8s_mcp.server.schemas import (
+    GetNamespaceStatusResponse,
+    SetNamespaceStatusResponse,
+)
+from k8s_mcp.server.structured import structured_response
+from k8s_mcp.server.tools.prometheus import _query_prometheus_api
 
 logger = logging.getLogger("mcp-server")
 
@@ -87,58 +90,12 @@ def _parse_pod_counts(data: Dict[str, Any]) -> Dict[str, int]:
     return namespaces
 
 
-def _get_all_namespaces(context: str = "") -> List[Dict[str, Any]]:
-    """Fetch all namespace objects with their annotations."""
-    try:
-        v1 = get_k8s_client(context)
-        ns_list = v1.list_namespace()
-        return [
-            {
-                "metadata": {
-                    "name": ns.metadata.name,
-                    "annotations": ns.metadata.annotations or {},
-                }
-            }
-            for ns in ns_list.items
-        ]
-    except Exception as e:
-        raise RuntimeError(f"Failed to list namespaces: {e}")
-
-
-def _annotate_namespace(
-    namespace: str,
-    annotations: Dict[str, str],
-    context: str = "",
-    dry_run: bool = False,
-) -> tuple[bool, str]:
-    """Apply annotations to a namespace. Returns (success, message)."""
-    if not annotations:
-        return True, "No annotations to apply."
-
-    if dry_run:
-        kv_str = ", ".join([f"{k}={v}" for k, v in annotations.items()])
-        return True, f"[DRY-RUN] kubectl annotate namespace {namespace} {kv_str}"
-
-    try:
-        v1 = get_k8s_client(context)
-        from kubernetes import client
-        patch = {
-            "metadata": {
-                "annotations": annotations
-            }
-        }
-        v1.patch_namespace(namespace, patch)
-        return True, f"Annotations applied to namespace {namespace}"
-    except Exception as e:
-        return False, str(e)
-
-
 def _compute_status(pod_count: int, idle_threshold: int) -> str:
     return STATUS_IDLE if pod_count <= idle_threshold else STATUS_ACTIVE
 
 
 def _build_annotations(
-    namespace_obj: Dict[str, Any],
+    current_annotations: Dict[str, str],
     pod_count: int,
     idle_threshold: int,
     duration_days: int,
@@ -153,9 +110,6 @@ def _build_annotations(
     """
     now_iso = now.replace(microsecond=0).isoformat()
     since_default = (now - timedelta(days=duration_days)).replace(microsecond=0).isoformat()
-
-    metadata = namespace_obj.get("metadata", {})
-    current_annotations = metadata.get("annotations", {}) or {}
 
     old_status = current_annotations.get(f"{ANNOTATION_PREFIX}status", "")
     old_since_str = current_annotations.get(f"{ANNOTATION_PREFIX}since", "")
@@ -214,15 +168,16 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
     """
 
     @server.tool(
+        output_schema=SetNamespaceStatusResponse.model_json_schema(),
         annotations=ToolAnnotations(
-            title="Manage Namespace Lifecycle",
+            title="Set Namespace Status",
             readOnlyHint=False,
             destructiveHint=False,
             idempotentHint=True,
             openWorldHint=True,
         ),
     )
-    def manage_namespace_lifecycle(
+    def set_namespace_status(
         cluster: str,
         prometheus_url: str,
         context: str = "",
@@ -233,41 +188,33 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
         exclude: Optional[List[str]] = None,
         timeout: int = 30,
     ) -> Dict[str, Any]:
-        """Batch manage namespace lifecycle annotations (active/idle status).
+        """Set namespace lifecycle status annotations (active/idle) based on Prometheus pod counts.
 
-        This tool queries Prometheus for per-namespace running pod counts,
-        computes lifecycle status, and applies annotations via kubectl.
-        All processing happens server-side to minimize LLM token usage.
-
-        Safety:
-        - Only writes via kubectl annotate (never delete, scale, etc.)
-        - Default dry_run=True - must explicitly set dry_run=False to apply
-        - Excludes system namespaces by default
+        Queries Prometheus for running pod counts per namespace, determines active/idle status,
+        and applies lifecycle annotations. Default dry_run=True for safety.
 
         Args:
-            cluster: Target cluster name (PromQL cluster label and output metadata)
-            prometheus_url: Prometheus/Thanos base URL.
-                            Example: 'http://prometheus.monitoring.svc.cluster.local:9090'
-            context: kubectl context to use (uses current if empty)
+            cluster: Target cluster name (PromQL cluster label)
+            prometheus_url: Prometheus/Thanos base URL
+            context: Kubernetes context (uses current if empty)
             namespaces: Specific namespaces to process (None = all non-excluded)
             idle_threshold: Pod count at or below which namespace is idle. Default: 0
             duration_days: Prometheus query window in days (1-7). Default: 1
-            dry_run: If True, preview changes without applying. Default: True
-            exclude: Namespaces to exclude from query. Default: system namespaces
-            timeout: Timeout per operation in seconds. Default: 30
+            dry_run: If True, preview only. Default: True
+            exclude: Namespaces to exclude. Default: system namespaces
+            timeout: Timeout in seconds. Default: 30
 
         Returns:
             {
                 "success": true,
+                "cluster": "prod",
+                "context": "current",
                 "dry_run": true,
-                "summary": {
-                    "total": 173,
-                    "active": 45,
-                    "idle": 128,
-                    "transitions": 3,
-                    "errors": 0
-                },
-                "changes": [...]  // limited to first 20 for token efficiency
+                "total": 173,
+                "processed": 170,
+                "active": 45,
+                "idle": 125,
+                "errors": 0
             }
         """
         try:
@@ -315,87 +262,65 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
             else:
                 target_ns = dict(pod_counts)
 
-            # Step 3: Fetch all namespace annotations (ONE kubectl call)
-            all_ns_items = _get_all_namespaces(context=context, timeout=timeout)
-            ns_map = {item["metadata"]["name"]: item for item in all_ns_items if "metadata" in item}
+            # Step 3: Fetch all namespaces
+            v1 = get_k8s_client(context)
+            namespace_list = v1.list_namespace()
+            namespace_annotations = {
+                ns.metadata.name: ns.metadata.annotations or {}
+                for ns in namespace_list.items
+            }
 
             now = datetime.now(timezone.utc)
-            now_iso = now.replace(microsecond=0).isoformat()
 
             # Step 4: Compute and apply annotations
-            results: List[Dict[str, Any]] = []
-            transition_count = 0
+            processed_count = 0
             error_count = 0
+            active_count = 0
+            idle_count = 0
 
-            for ns_name, pod_count in sorted(target_ns.items()):
-                ns_obj = ns_map.get(ns_name)
-                if not ns_obj:
-                    results.append({
-                        "namespace": ns_name,
-                        "pod_count": pod_count,
-                        "status": _compute_status(pod_count, idle_threshold),
-                        "error": "Namespace not found in cluster",
-                        "success": False,
-                    })
+            for namespace_name, pod_count in sorted(target_ns.items()):
+                current_annotations = namespace_annotations.get(namespace_name)
+                if current_annotations is None:
                     error_count += 1
                     continue
 
                 annotations = _build_annotations(
-                    namespace_obj=ns_obj,
+                    current_annotations=current_annotations,
                     pod_count=pod_count,
                     idle_threshold=idle_threshold,
                     duration_days=duration_days,
                     now=now,
                 )
 
-                old_status = (ns_obj.get("metadata", {}).get("annotations", {}) or {}).get(
-                    f"{ANNOTATION_PREFIX}status", ""
-                )
                 new_status = _compute_status(pod_count, idle_threshold)
-                transition_occurred = old_status != new_status
 
-                success, message = _annotate_namespace(
-                    ns_name,
-                    annotations,
-                    context=context,
-                    dry_run=dry_run,
-                )
+                if dry_run:
+                    processed_count += 1
+                else:
+                    try:
+                        patch = {"metadata": {"annotations": annotations}}
+                        v1.patch_namespace(namespace_name, patch)
+                        processed_count += 1
+                    except Exception:
+                        error_count += 1
+                        continue
 
-                results.append({
-                    "namespace": ns_name,
-                    "pod_count": pod_count,
-                    "status": new_status,
-                    "previous_status": old_status or None,
-                    "transition": transition_occurred,
-                    "success": success,
-                    "message": message if not success else None,
-                })
+                if new_status == STATUS_ACTIVE:
+                    active_count += 1
+                else:
+                    idle_count += 1
 
-                if transition_occurred:
-                    transition_count += 1
-                if not success:
-                    error_count += 1
-
-            # Build response - limit details to prevent token explosion
-            active_count = sum(1 for r in results if r["status"] == STATUS_ACTIVE)
-            idle_count = sum(1 for r in results if r["status"] == STATUS_IDLE)
-
-            return {
+            return structured_response({
                 "success": error_count == 0,
                 "cluster": cluster,
                 "context": context or "current",
                 "dry_run": dry_run,
-                "processed_at": now_iso,
-                "summary": {
-                    "total": len(results),
-                    "active": active_count,
-                    "idle": idle_count,
-                    "transitions": transition_count,
-                    "errors": error_count,
-                },
-                "changes": results[:20],  # Limit for token efficiency
-                "has_more_changes": len(results) > 20,
-            }
+                "total": len(target_ns),
+                "processed": processed_count,
+                "active": active_count,
+                "idle": idle_count,
+                "errors": error_count,
+            }, SetNamespaceStatusResponse)
 
         except RuntimeError as e:
             return {"success": False, "error": str(e)}
@@ -404,15 +329,16 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
             return {"success": False, "error": str(e)}
 
     @server.tool(
+        output_schema=GetNamespaceStatusResponse.model_json_schema(),
         annotations=ToolAnnotations(
-            title="Get Namespace Lifecycle Status",
+            title="List Namespace Status",
             readOnlyHint=True,
             destructiveHint=False,
             idempotentHint=True,
             openWorldHint=True,
         ),
     )
-    def get_namespace_lifecycle_status(
+    def list_namespace_status(
         context: str = "",
         namespaces: Optional[List[str]] = None,
         timeout: int = 30,
@@ -442,17 +368,18 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
             }
         """
         try:
-            all_ns_items = _get_all_namespaces(context=context, timeout=timeout)
+            v1 = get_k8s_client(context)
+            ns_list = v1.list_namespace()
 
             results = []
-            for item in all_ns_items:
-                name = item.get("metadata", {}).get("name", "")
+            for ns in ns_list.items:
+                name = ns.metadata.name
                 if not name:
                     continue
                 if namespaces and name not in namespaces:
                     continue
 
-                annotations = item.get("metadata", {}).get("annotations", {}) or {}
+                annotations = ns.metadata.annotations or {}
                 prefix = ANNOTATION_PREFIX
 
                 status = annotations.get(f"{prefix}status", "")
@@ -469,17 +396,15 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
                     "last_pod_count": annotations.get(f"{prefix}last-pod-count"),
                 })
 
-            return {
+            return structured_response({
                 "success": True,
                 "context": context or "current",
                 "count": len(results),
                 "active": sum(1 for r in results if r["status"] == STATUS_ACTIVE),
                 "idle": sum(1 for r in results if r["status"] == STATUS_IDLE),
                 "namespaces": results,
-            }
+            }, GetNamespaceStatusResponse)
 
-        except subprocess.TimeoutExpired:
-            return {"success": False, "error": "kubectl operation timed out"}
         except RuntimeError as e:
             return {"success": False, "error": str(e)}
         except Exception as e:

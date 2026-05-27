@@ -12,8 +12,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    # Skip version bump commits and manual skip
-    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[release]')"
 
     steps:
       - name: Checkout code

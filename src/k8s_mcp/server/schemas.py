@@ -255,3 +255,34 @@ class GetCostAnalysisResponse(BaseModel):
     note: str
     byNamespace: Any
     topWorkloads: List[Dict[str, Any]]
+
+
+class SetNamespaceStatusResponse(BaseModel):
+    success: bool
+    cluster: str
+    context: str
+    dry_run: bool
+    total: int
+    processed: int
+    active: int
+    idle: int
+    errors: int
+
+
+class NamespaceStatusItem(BaseModel):
+    name: str
+    status: str
+    since: Optional[str] = None
+    duration: Optional[str] = None
+    last_transition: Optional[str] = None
+    last_check: Optional[str] = None
+    last_pod_count: Optional[str] = None
+
+
+class GetNamespaceStatusResponse(BaseModel):
+    success: bool
+    context: str
+    count: int
+    active: int
+    idle: int
+    namespaces: List[NamespaceStatusItem]

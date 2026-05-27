@@ -302,9 +302,53 @@ mypy src/k8s_mcp
 
 ---
 
+## 分支工作流
+
+我们使用分支来控制自动发布：
+
+| 分支 | 用途 | Push 行为 |
+|------|------|----------|
+| `dev` | 日常开发 | ❌ 不触发发布 |
+| `master` | 稳定版本 | ✅ 自动发布开发版本 |
+
+### 开发流程
+
+```bash
+# 1. 在 dev 分支开发
+git checkout dev
+# ... 修改代码 ...
+git commit -m "feat: update inspect"
+git push origin dev        # 不发布
+
+# 2. 开发完成后合并到 master 发布
+git checkout master
+git merge dev
+git push origin master     # 触发自动发布
+```
+
+### 生产发布
+
+```bash
+# 打标签触发生产发布
+git checkout master
+git tag v0.1.3
+git push origin v0.1.3     # 触发生产版本发布
+```
+
+---
+
 ## 发布流程
 
-### Python 包发布
+### 自动发布（推荐）
+
+项目使用 GitHub Actions 自动发布：
+
+- **Push 到 `master`**：自动发布开发版本（补丁号自动递增）
+- **Push `v*` 标签**：发布生产版本
+
+### 手动发布
+
+#### Python 包
 
 ```bash
 # 1. 更新版本号（修改以下文件）
@@ -321,27 +365,18 @@ python -m build
 # 4. 检查包
 python -m twine check dist/*
 
-# 5. 上传到 PyPI（测试环境）
-python -m twine upload --repository testpypi dist/*
-
-# 6. 上传到 PyPI（生产环境）
+# 5. 上传到 PyPI
 python -m twine upload dist/*
 ```
 
-### npm 包发布
+#### npm 包
 
 ```bash
-# 1. 确保 Node.js 已安装
-node --version
-
-# 2. 更新版本号
+# 1. 更新版本号
 npm version patch    # 或 minor / major
 
-# 3. 发布
+# 2. 发布
 npm publish
-
-# 4. 测试发布（使用 tag）
-npm publish --tag beta
 ```
 
 ---
