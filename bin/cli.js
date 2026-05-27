@@ -15,12 +15,26 @@ function getPythonCommand() {
   return null;
 }
 
-function checkPythonPackage(pythonCmd) {
+function getInstalledPythonVersion(pythonCmd) {
   try {
-    return spawnSync(pythonCmd, ['-c', 'import k8s_mcp'], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).status === 0;
-  } catch (e) {
+    const result = spawnSync(pythonCmd, ['-c', 'import k8s_mcp; print(k8s_mcp.__version__)'], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+    if (result.status === 0) {
+      return result.stdout.trim();
+    }
+  } catch (e) {}
+  return null;
+}
+
+function checkPythonPackage(pythonCmd, expectedVersion) {
+  const installedVersion = getInstalledPythonVersion(pythonCmd);
+  if (!installedVersion) {
     return false;
   }
+  if (installedVersion !== expectedVersion) {
+    log(`Python package version mismatch: ${installedVersion} (expected ${expectedVersion})`, 'yellow');
+    return false;
+  }
+  return true;
 }
 
 function main() {
@@ -62,10 +76,12 @@ For more info: https://github.com/xuyun-io/k8s-mcp
     process.exit(1);
   }
 
-  if (!checkPythonPackage(pythonCmd)) {
-    log('Installing k8s-mcp...', 'yellow');
-    if (spawnSync(pythonCmd, ['-m', 'pip', 'install', 'k8s-mcp'], { stdio: 'inherit' }).status !== 0) {
-      log('Failed to install. Try: pip install k8s-mcp', 'red');
+  const npmVersion = require('../package.json').version;
+
+  if (!checkPythonPackage(pythonCmd, npmVersion)) {
+    log(`Installing k8s-mcp==${npmVersion}...`, 'yellow');
+    if (spawnSync(pythonCmd, ['-m', 'pip', 'install', `k8s-mcp==${npmVersion}`], { stdio: 'inherit' }).status !== 0) {
+      log(`Failed to install k8s-mcp==${npmVersion}. Try: pip install k8s-mcp==${npmVersion}`, 'red');
       process.exit(1);
     }
     log('Installed successfully!', 'green');
