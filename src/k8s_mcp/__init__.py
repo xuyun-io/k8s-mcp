@@ -5,7 +5,7 @@ This package provides:
 - ctl: CLI control tool
 """
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from .server import MCPServer
 
