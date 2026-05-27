@@ -25,10 +25,18 @@ jobs:
         id: version
         run: |
           BASE_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-          # Parse X.Y.Z and increment patch
+          # Parse X.Y.Z and increment patch until we find an unused version
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
-          NEW_PATCH=$((PATCH + 1))
-          DEV_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          NEW_PATCH=$PATCH
+          while true; do
+            NEW_PATCH=$((NEW_PATCH + 1))
+            DEV_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+            # Check if version exists on PyPI
+            if ! pip index versions k8s-mcp 2>/dev/null | grep -q "$DEV_VERSION"; then
+              break
+            fi
+            echo "Version $DEV_VERSION already exists on PyPI, trying next..."
+          done
           echo "base=$BASE_VERSION" >> $GITHUB_OUTPUT
           echo "dev=$DEV_VERSION" >> $GITHUB_OUTPUT
           echo "Development version: $DEV_VERSION (from $BASE_VERSION)"
