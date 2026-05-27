@@ -46,7 +46,8 @@ jobs:
           git add pyproject.toml package.json src/k8s_mcp/__init__.py
           git diff --cached --quiet && exit 0
           git commit -m "chore: release ${{ steps.version.outputs.version }} [release] [skip ci]"
-          git push
+          # Push to master (tag is on detached HEAD, need to specify branch)
+          git push origin HEAD:master
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
