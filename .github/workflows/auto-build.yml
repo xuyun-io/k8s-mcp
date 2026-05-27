@@ -26,15 +26,12 @@ jobs:
         run: |
           BASE_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
           BUILD=$(git rev-list --count HEAD)
-          PYTHON_VERSION="${BASE_VERSION}.post${BUILD}"
-          NPM_VERSION="${BASE_VERSION}-build.${BUILD}"
+          DATE=$(date +%Y.%-m.%-d)
+          DEV_VERSION="${DATE}.${BUILD}"
           echo "base=$BASE_VERSION" >> $GITHUB_OUTPUT
           echo "build=$BUILD" >> $GITHUB_OUTPUT
-          echo "python=$PYTHON_VERSION" >> $GITHUB_OUTPUT
-          echo "npm=$NPM_VERSION" >> $GITHUB_OUTPUT
-          echo "Development version:"
-          echo "  Python: $PYTHON_VERSION"
-          echo "  npm: $NPM_VERSION"
+          echo "dev=$DEV_VERSION" >> $GITHUB_OUTPUT
+          echo "Development version: $DEV_VERSION"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,7 +40,7 @@ jobs:
 
       - name: Update Python version for build
         run: |
-          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.python }}\"/" pyproject.toml
+          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.dev }}\"/" pyproject.toml
 
       - name: Install Python build dependencies
         run: |
@@ -64,7 +61,7 @@ jobs:
 
       - name: Update npm version for build
         run: |
-          NPM_V="${{ steps.version.outputs.npm }}"
+          NPM_V="${{ steps.version.outputs.dev }}"
           node -e "const fs=require('fs'); const pkg=JSON.parse(fs.readFileSync('package.json')); pkg.version='$NPM_V'; fs.writeFileSync('package.json', JSON.stringify(pkg,null,2)+'\n');"
 
       - name: Publish to npm
