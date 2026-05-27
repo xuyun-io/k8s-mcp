@@ -274,15 +274,24 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
 
             # Step 4: Compute and apply annotations
             processed_count = 0
-            error_count = 0
             active_count = 0
             idle_count = 0
 
             for namespace_name, pod_count in sorted(target_ns.items()):
                 current_annotations = namespace_annotations.get(namespace_name)
                 if current_annotations is None:
-                    error_count += 1
-                    continue
+                    return {
+                        "success": False,
+                        "error": f"Namespace '{namespace_name}' not found in cluster (found in Prometheus but not in Kubernetes)",
+                        "cluster": cluster,
+                        "context": context or "current",
+                        "dry_run": dry_run,
+                        "total": len(target_ns),
+                        "processed": processed_count,
+                        "active": active_count,
+                        "idle": idle_count,
+                        "errors": 1,
+                    }
 
                 annotations = _build_annotations(
                     current_annotations=current_annotations,
@@ -301,9 +310,19 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
                         patch = {"metadata": {"annotations": annotations}}
                         v1.patch_namespace(namespace_name, patch)
                         processed_count += 1
-                    except Exception:
-                        error_count += 1
-                        continue
+                    except Exception as e:
+                        return {
+                            "success": False,
+                            "error": f"Failed to patch namespace '{namespace_name}': {str(e)}",
+                            "cluster": cluster,
+                            "context": context or "current",
+                            "dry_run": dry_run,
+                            "total": len(target_ns),
+                            "processed": processed_count,
+                            "active": active_count,
+                            "idle": idle_count,
+                            "errors": 1,
+                        }
 
                 if new_status == STATUS_ACTIVE:
                     active_count += 1
@@ -311,7 +330,7 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
                     idle_count += 1
 
             return structured_response({
-                "success": error_count == 0,
+                "success": True,
                 "cluster": cluster,
                 "context": context or "current",
                 "dry_run": dry_run,
@@ -319,7 +338,7 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
                 "processed": processed_count,
                 "active": active_count,
                 "idle": idle_count,
-                "errors": error_count,
+                "errors": 0,
             }, SetNamespaceStatusResponse)
 
         except RuntimeError as e:
