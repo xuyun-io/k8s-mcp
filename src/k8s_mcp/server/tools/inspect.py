@@ -8,13 +8,13 @@ based on pod counts from Prometheus.
 import logging
 import os
 import re
-import subprocess
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 
 from mcp.types import ToolAnnotations
 
-from ..k8s_config import get_k8s_client, _get_kubectl_context_args
+from ..k8s_config import get_k8s_client
+from ..structured import structured_response
 from .prometheus import _query_prometheus_api
 
 logger = logging.getLogger("mcp-server")
@@ -87,35 +87,27 @@ def _parse_pod_counts(data: Dict[str, Any]) -> Dict[str, int]:
     return namespaces
 
 
-def _run_kubectl(
-    args: List[str],
-    timeout: int,
-    context: str = "",
-) -> subprocess.CompletedProcess[str]:
-    """Run kubectl command with optional context."""
-    kubectl = os.environ.get("KUBECTL", "kubectl")
-    cmd = [kubectl]
-    if context:
-        cmd += ["--context", context]
-    cmd += args
-    return subprocess.run(cmd, check=False, capture_output=True, text=True, timeout=timeout)
-
-
-def _get_all_namespaces(context: str = "", timeout: int = 30) -> List[Dict[str, Any]]:
+def _get_all_namespaces(context: str = "") -> List[Dict[str, Any]]:
     """Fetch all namespace objects with their annotations."""
-    import json
-
-    proc = _run_kubectl(["get", "namespaces", "-o", "json"], timeout=timeout, context=context)
-    if proc.returncode != 0:
-        raise RuntimeError(f"Failed to list namespaces: {proc.stderr}")
-    data = json.loads(proc.stdout)
-    return data.get("items", [])
+    try:
+        v1 = get_k8s_client(context)
+        ns_list = v1.list_namespace()
+        return [
+            {
+                "metadata": {
+                    "name": ns.metadata.name,
+                    "annotations": ns.metadata.annotations or {},
+                }
+            }
+            for ns in ns_list.items
+        ]
+    except Exception as e:
+        raise RuntimeError(f"Failed to list namespaces: {e}")
 
 
 def _annotate_namespace(
     namespace: str,
     annotations: Dict[str, str],
-    timeout: int,
     context: str = "",
     dry_run: bool = False,
 ) -> tuple[bool, str]:
@@ -123,17 +115,22 @@ def _annotate_namespace(
     if not annotations:
         return True, "No annotations to apply."
 
-    kv_pairs = [f"{k}={v}" for k, v in annotations.items()]
-    cmd = ["annotate", "namespace", namespace, "--overwrite"] + kv_pairs
-
     if dry_run:
-        prefix = ["--context", context] if context else []
-        return True, f"[DRY-RUN] kubectl {' '.join(prefix + cmd)}"
+        kv_str = ", ".join([f"{k}={v}" for k, v in annotations.items()])
+        return True, f"[DRY-RUN] kubectl annotate namespace {namespace} {kv_str}"
 
-    proc = _run_kubectl(cmd, timeout=timeout, context=context)
-    if proc.returncode != 0:
-        return False, proc.stderr.strip() or proc.stdout.strip()
-    return True, proc.stdout.strip()
+    try:
+        v1 = get_k8s_client(context)
+        from kubernetes import client
+        patch = {
+            "metadata": {
+                "annotations": annotations
+            }
+        }
+        v1.patch_namespace(namespace, patch)
+        return True, f"Annotations applied to namespace {namespace}"
+    except Exception as e:
+        return False, str(e)
 
 
 def _compute_status(pod_count: int, idle_threshold: int) -> str:
@@ -360,7 +357,6 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
                 success, message = _annotate_namespace(
                     ns_name,
                     annotations,
-                    timeout=timeout,
                     context=context,
                     dry_run=dry_run,
                 )
@@ -401,8 +397,6 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
                 "has_more_changes": len(results) > 20,
             }
 
-        except subprocess.TimeoutExpired:
-            return {"success": False, "error": "kubectl operation timed out"}
         except RuntimeError as e:
             return {"success": False, "error": str(e)}
         except Exception as e:
