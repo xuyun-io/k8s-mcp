@@ -1,7 +1,7 @@
 """Inspect tools for k8s-mcp.
 
-These tools provide cluster and namespace inspection capabilities,
-including namespace lifecycle annotations (active/idle status)
+These tools provide namespace status management capabilities,
+including setting and listing namespace active/idle status
 based on pod counts from Prometheus.
 """
 
@@ -101,7 +101,7 @@ def _build_annotations(
     duration_days: int,
     now: datetime,
 ) -> Dict[str, str]:
-    """Compute lifecycle annotations for a single namespace.
+    """Compute namespace status annotations for a single namespace.
 
     Logic:
     - First detection or transition: reset since/duration
@@ -160,10 +160,10 @@ def _build_annotations(
 
 
 def register_inspect_tools(server: "FastMCP", non_destructive: bool):
-    """Register inspect tools.
+    """Register namespace status tools.
 
-    These tools provide cluster and namespace inspection capabilities,
-    including namespace lifecycle annotations (active/idle status)
+    These tools provide namespace status management capabilities,
+    including setting and listing namespace active/idle status
     based on pod counts from Prometheus.
     """
 
@@ -188,10 +188,10 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
         exclude: Optional[List[str]] = None,
         timeout: int = 30,
     ) -> Dict[str, Any]:
-        """Set namespace lifecycle status annotations (active/idle) based on Prometheus pod counts.
+        """Set namespace status (active/idle) based on Prometheus pod counts.
 
         Queries Prometheus for running pod counts per namespace, determines active/idle status,
-        and applies lifecycle annotations. Default dry_run=True for safety.
+        and applies status annotations. Default dry_run=True for safety.
 
         Args:
             cluster: Target cluster name (PromQL cluster label)
@@ -325,7 +325,7 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
         except RuntimeError as e:
             return {"success": False, "error": str(e)}
         except Exception as e:
-            logger.error(f"Error managing namespace lifecycle: {e}")
+            logger.error(f"Error setting namespace status: {e}")
             return {"success": False, "error": str(e)}
 
     @server.tool(
@@ -343,9 +343,9 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
         namespaces: Optional[List[str]] = None,
         timeout: int = 30,
     ) -> Dict[str, Any]:
-        """Read lifecycle annotations from namespaces without modifying them.
+        """List namespace status annotations without modifying them.
 
-        Useful for checking current status before running manage_namespace_lifecycle.
+        Useful for checking current status before running set_namespace_status.
 
         Args:
             context: kubectl context to use
@@ -408,5 +408,5 @@ def register_inspect_tools(server: "FastMCP", non_destructive: bool):
         except RuntimeError as e:
             return {"success": False, "error": str(e)}
         except Exception as e:
-            logger.error(f"Error getting namespace lifecycle status: {e}")
+            logger.error(f"Error listing namespace status: {e}")
             return {"success": False, "error": str(e)}
