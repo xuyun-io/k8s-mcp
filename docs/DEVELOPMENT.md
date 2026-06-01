@@ -457,7 +457,6 @@ pip install -e .
 
 - [项目 README](../README.md) - 项目介绍和使用说明
 - [CLAUDE.md](../CLAUDE.md) - 项目架构和版本历史
-- [CONTRIBUTING.md](../kubectl-mcp-app/CONTRIBUTING.md) - 贡献指南
 
 ---
 

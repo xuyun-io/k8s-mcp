@@ -25,6 +25,14 @@ wheels/
 *.egg
 .pytest_cache/
 
+# JavaScript
+node_modules/
+!k8s-mcp-apps/pods/dist/
+!k8s-mcp-apps/pods/dist/index.html
+!k8s-mcp-apps/pods/dist/k8s-pods.html
+!k8s-mcp-apps/inspect/dist/
+!k8s-mcp-apps/inspect/dist/index.html
+
 # Logs
 logs/
 *.log

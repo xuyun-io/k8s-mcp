@@ -1,10 +1,76 @@
 import os
 import logging
+import yaml
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 
 logger = logging.getLogger("mcp-server")
+
+
+def _apply_exec_env_from_kubeconfig(kubeconfig_path: str, context_name: str):
+    """Read exec env vars from kubeconfig user and apply to os.environ.
+
+    EKS and other cloud providers often use exec auth with environment
+    variables (e.g. AWS_PROFILE). The kubernetes Python client runs the
+    exec command in a subprocess but may not inherit these env vars on
+    Windows. We pre-emptively set them in os.environ before loading config.
+    """
+    try:
+        with open(os.path.expanduser(kubeconfig_path), 'r') as f:
+            kubeconfig = yaml.safe_load(f)
+    except Exception:
+        return
+
+    contexts = kubeconfig.get('contexts', [])
+    users = kubeconfig.get('users', [])
+
+    # Find the user for the given context
+    target_user_name = None
+    for ctx in contexts:
+        ctx_info = ctx.get('context', {})
+        if ctx.get('name') == context_name:
+            target_user_name = ctx_info.get('user')
+            break
+
+    if not target_user_name:
+        return
+
+    # Find the user definition and extract exec env
+    for user in users:
+        if user.get('name') == target_user_name:
+            user_data = user.get('user', {})
+            exec_config = user_data.get('exec')
+            if exec_config and 'env' in exec_config:
+                for env_item in exec_config['env']:
+                    name = env_item.get('name')
+                    value = env_item.get('value')
+                    if name and value and os.environ.get(name) != value:
+                        os.environ[name] = value
+                        logger.info(
+                            f"Set env var {name}={value} from kubeconfig "
+                            f"for context {context_name}"
+                        )
+            break
+
+
+def normalize_bearer_token_auth(api_config: Any) -> None:
+    """Normalize kubeconfig auth keys for the generated Kubernetes client.
+
+    Some Kubernetes Python client versions load exec auth into the lowercase
+    ``authorization`` key, while generated API calls only consult
+    ``BearerToken`` via ``Configuration.auth_settings()``. When that happens the
+    token exists on the configuration but no Authorization header is sent.
+    """
+    if "BearerToken" in api_config.api_key or "authorization" not in api_config.api_key:
+        return
+
+    auth_value = api_config.get_api_key_with_prefix("authorization")
+    if not auth_value:
+        return
+
+    api_config.api_key["BearerToken"] = auth_value
+    api_config.api_key_prefix.pop("BearerToken", None)
 
 
 class ProviderType(Enum):
@@ -138,6 +204,9 @@ class KubernetesProvider:
 
         from kubernetes import config
 
+        _apply_exec_env_from_kubeconfig(
+            self.config.kubeconfig_path, self.config.context
+        )
         try:
             config.load_kube_config(
                 config_file=self.config.kubeconfig_path,
@@ -334,12 +403,18 @@ class KubernetesProvider:
         if self._in_cluster:
             api_client = client.ApiClient()
         else:
+            # Apply exec env vars (e.g. AWS_PROFILE) before loading config
+            # so that subprocess-based auth plugins use the correct credentials
+            _apply_exec_env_from_kubeconfig(
+                self.config.kubeconfig_path, resolved_context
+            )
             api_config = client.Configuration()
             config.load_kube_config(
                 config_file=self.config.kubeconfig_path,
                 context=resolved_context,
                 client_configuration=api_config
             )
+            normalize_bearer_token_auth(api_config)
             api_client = client.ApiClient(configuration=api_config)
 
         self._api_clients[resolved_context] = api_client

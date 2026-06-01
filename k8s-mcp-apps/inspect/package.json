@@ -1,0 +1,11 @@
+{
+  "name": "k8s-inspect-viewer",
+  "version": "1.0.0",
+  "description": "K8s cluster inspection report viewer (MCP App).",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build"
+  }
+}

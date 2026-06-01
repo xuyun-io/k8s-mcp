@@ -365,6 +365,14 @@ def _load_config_for_context(context: str = "") -> Any:
             f"Set MCP_K8S_PROVIDER=in-cluster for in-cluster deployments."
         )
 
+    # Apply exec env vars (e.g. AWS_PROFILE) from kubeconfig before loading
+    # so that subprocess-based auth plugins use the correct credentials
+    try:
+        from .providers import _apply_exec_env_from_kubeconfig
+        _apply_exec_env_from_kubeconfig(kubeconfig_path, context)
+    except Exception:
+        pass
+
     api_config = client.Configuration()
 
     if context:
@@ -378,6 +386,12 @@ def _load_config_for_context(context: str = "") -> Any:
             config_file=kubeconfig_path,
             client_configuration=api_config
         )
+
+    try:
+        from .providers import normalize_bearer_token_auth
+        normalize_bearer_token_auth(api_config)
+    except Exception:
+        pass
 
     return client.ApiClient(configuration=api_config)
 

@@ -1,0 +1,29 @@
+{
+  "name": "k8s-mcp-apps",
+  "version": "1.0.0",
+  "description": "MCP Apps UI collection for k8s-mcp server.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:pods && npm run build:inspect",
+    "build:pods": "cd pods && npm run build",
+    "build:inspect": "cd inspect && npm run build",
+    "dev:pods": "cd pods && npm run dev",
+    "dev:inspect": "cd inspect && npm run dev"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.7.2",
+    "lucide-react": "^1.17.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.14",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}

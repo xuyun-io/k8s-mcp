@@ -94,10 +94,19 @@ from k8s_mcp.server.tools import (
     register_custom_resource_tools,
     register_prometheus_tools,
     register_inspect_tools,
+    register_k8s_inspect_tools,
 )
 from k8s_mcp.server.resources import register_resources
 from k8s_mcp.server.prompts import register_prompts
 from k8s_mcp.server.auth import get_auth_config, create_auth_verifier
+from k8s_mcp.server.tools.k8s_inspect import (
+    K8S_INSPECT_RESOURCE_URI,
+    K8S_INSPECT_RESOURCE_MIME_TYPE,
+    K8S_INSPECT_TOOL_NAME,
+    get_k8s_inspect_resource_descriptor,
+    get_k8s_inspect_tool_meta,
+    read_inspect_viewer_html,
+)
 
 if platform.system() == "Windows":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -324,7 +333,7 @@ class MCPServer:
             logger.info(f"Tool modules enabled: {', '.join(sorted(valid))}")
             return valid
 
-        # Default: only core module
+        # Default: core tools plus the read-only MCP Apps demo.
         result = set(DEFAULT_ENABLED_TOOL_MODULES)
         logger.info(f"Tool modules enabled (default): {', '.join(sorted(result))}")
         return result
@@ -368,6 +377,7 @@ class MCPServer:
 
         if "inspect" in enabled_modules:
             register_inspect_tools(self.server, self.non_destructive)
+            register_k8s_inspect_tools(self.server, self.non_destructive)
             logger.debug("Inspect tools registered")
 
         # Optional modules (disabled by default)
@@ -661,141 +671,31 @@ class MCPServer:
         try:
             # Check if FastMCP supports streamable HTTP
             if hasattr(self.server, 'run_http_async'):
-                await self.server.run_http_async(host=host, port=port)
+                # Enable stateless mode for streamable-http to avoid session ID issues
+                await self.server.run_http_async(
+                    host=host, port=port,
+                    transport="streamable-http",
+                    stateless=True
+                )
             elif hasattr(self.server, 'run_streamable_http_async'):
                 await self.server.run_streamable_http_async(host=host, port=port)
             else:
-                # Fall back to implementing HTTP transport manually using ASGI
-                logger.info("FastMCP does not have built-in HTTP support, using custom implementation")
-                await self._serve_http_custom(host=host, port=port)
+                raise RuntimeError(
+                    "FastMCP does not have built-in HTTP support. "
+                    "Please upgrade to FastMCP >= 3.4.0"
+                )
         except TypeError as e:
             logger.warning(f"HTTP transport parameter issue: {e}. Trying alternative signatures...")
             # Try without parameters
             if hasattr(self.server, 'run_http_async'):
-                await self.server.run_http_async()
+                await self.server.run_http_async(transport="streamable-http", stateless=True)
             elif hasattr(self.server, 'run_streamable_http_async'):
                 await self.server.run_streamable_http_async()
             else:
-                await self._serve_http_custom(host=host, port=port)
-
-    async def _serve_http_custom(self, host: str = "0.0.0.0", port: int = 8000):
-        """
-        Custom HTTP server implementation using uvicorn and Starlette.
-        Provides HTTP/JSON-RPC transport for MCP.
-        """
-        try:
-            from starlette.applications import Starlette
-            from starlette.responses import JSONResponse
-            from starlette.routing import Route
-            import uvicorn
-        except ImportError:
-            logger.error("HTTP transport requires 'starlette' and 'uvicorn'. Install with: pip install starlette uvicorn")
-            raise ImportError("Missing dependencies for HTTP transport. Run: pip install starlette uvicorn")
-
-        async def handle_mcp_request(request):
-            """Handle incoming MCP JSON-RPC requests."""
-            try:
-                body = await request.json()
-                logger.debug(f"Received MCP request: {body}")
-
-                # Get the method and params from the JSON-RPC request
-                method = body.get("method", "")
-                params = body.get("params", {})
-                request_id = body.get("id")
-
-                # Handle different MCP methods
-                if method == "initialize":
-                    result = {
-                        "protocolVersion": "2024-11-05",
-                        "capabilities": {
-                            "tools": {"listChanged": True},
-                            "resources": {"subscribe": False, "listChanged": True}
-                        },
-                        "serverInfo": {
-                            "name": self.name,
-                            "version": __version__
-                        }
-                    }
-                elif method == "tools/list":
-                    # Get list of tools from FastMCP
-                    tools = []
-                    if hasattr(self.server, '_tool_manager') and hasattr(self.server._tool_manager, 'tools'):
-                        for name, tool in self.server._tool_manager.tools.items():
-                            tools.append({
-                                "name": name,
-                                "description": tool.description if hasattr(tool, 'description') else "",
-                                "inputSchema": tool.parameters if hasattr(tool, 'parameters') else {}
-                            })
-                    result = {"tools": tools}
-                elif method == "tools/call":
-                    tool_name = params.get("name", "")
-                    tool_args = params.get("arguments", {})
-
-                    # Execute the tool
-                    if hasattr(self.server, '_tool_manager'):
-                        try:
-                            tool_result = await self.server._tool_manager.call_tool(tool_name, tool_args)
-                            result = {"content": [{"type": "text", "text": json.dumps(tool_result)}]}
-                        except Exception as e:
-                            result = {"content": [{"type": "text", "text": f"Error: {str(e)}"}], "isError": True}
-                    else:
-                        result = {"content": [{"type": "text", "text": "Tool manager not available"}], "isError": True}
-                elif method == "ping":
-                    result = {}
-                else:
-                    result = {"error": f"Unknown method: {method}"}
-
-                response = {
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "result": result
-                }
-                return JSONResponse(response)
-            except Exception as e:
-                logger.error(f"Error handling MCP request: {e}")
-                return JSONResponse({
-                    "jsonrpc": "2.0",
-                    "id": None,
-                    "error": {"code": -32603, "message": str(e)}
-                }, status_code=500)
-
-        async def health_check(request):
-            """Health check endpoint."""
-            return JSONResponse({"status": "healthy", "server": self.name})
-
-        async def stats_endpoint(request):
-            """Return runtime statistics."""
-            stats = self._stats.get_stats()
-            return JSONResponse(stats)
-
-        async def metrics_endpoint(request):
-            """Return Prometheus-format metrics."""
-            from starlette.responses import PlainTextResponse
-            if is_prometheus_available():
-                metrics_text = get_metrics()
-                return PlainTextResponse(metrics_text, media_type="text/plain; version=0.0.4; charset=utf-8")
-            else:
-                return PlainTextResponse("# Prometheus metrics not available\n", media_type="text/plain")
-
-        async def safety_mode_endpoint(request):
-            """Return current safety mode information."""
-            mode_info = get_mode_info()
-            return JSONResponse(mode_info)
-
-        app = Starlette(
-            routes=[
-                Route("/", handle_mcp_request, methods=["POST"]),
-                Route("/mcp", handle_mcp_request, methods=["POST"]),
-                Route("/health", health_check, methods=["GET"]),
-                Route("/stats", stats_endpoint, methods=["GET"]),
-                Route("/metrics", metrics_endpoint, methods=["GET"]),
-                Route("/safety", safety_mode_endpoint, methods=["GET"]),
-            ]
-        )
-
-        config = uvicorn.Config(app, host=host, port=port, log_level="info")
-        server = uvicorn.Server(config)
-        await server.serve()
+                raise RuntimeError(
+                    "FastMCP does not have built-in HTTP support. "
+                    "Please upgrade to FastMCP >= 3.4.0"
+                )
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Name**: kubectl-mcp-server
-- **Version**: 1.22.0
+- **Version**: 0.1.4
 - **Description**: A Model Context Protocol (MCP) server for Kubernetes with 270+ tools, 8 resources, and 8 prompts
 - **Framework**: FastMCP 3.0.0b1 (Python)
 - **Repository**: https://github.com/rohitg00/kubectl-mcp-server
@@ -46,7 +46,7 @@ npm run build
 - Dark/light theme support
 - 27 tests with full coverage
 
-**Claude Desktop Configuration:**
+**Codex Desktop Configuration:**
 ```bash
 k8s-mcp-server --transport streamable-http --port 8000
 ```
@@ -171,7 +171,7 @@ Added 14 tools for managing virtual Kubernetes clusters using vCluster CLI:
 
 **New Files:**
 - `kubectl_mcp_tool/tools/vind.py` - vind (vCluster) tools
-- `kubernetes-skills/claude/k8s-vind/SKILL.md` - Agent skill for vCluster
+- `kubernetes-skills/Codex/k8s-vind/SKILL.md` - Agent skill for vCluster
 
 **Usage Examples:**
 ```python
@@ -207,12 +207,12 @@ Added comprehensive Kubernetes skills following [agenstskills.com](https://agens
 
 **Installation:**
 ```bash
-# Copy all skills to Claude
-cp -r kubernetes-skills/claude/* ~/.claude/skills/
+# Copy all skills to Codex
+cp -r kubernetes-skills/Codex/* ~/.Codex/skills/
 
 # Convert to other agents with SkillKit
 npm install -g skillkit
-skillkit translate kubernetes-skills/claude --to cursor --output .cursor/rules/
+skillkit translate kubernetes-skills/Codex --to cursor --output .cursor/rules/
 ```
 
 #### Enhanced Provider Module

@@ -126,10 +126,12 @@ class KubernetesConfig:
 # Tool modules that are enabled by default
 DEFAULT_ENABLED_TOOL_MODULES = {
     "core",
+    "inspect",
 }
 
 # All available tool module names
 ALL_TOOL_MODULES = {
+    "app",
     "core",
     "pod",
     "cluster",
@@ -168,7 +170,7 @@ class ToolsConfig:
 
     Controls which tool modules are registered at server startup.
 
-    By default, only the 'core' module is enabled.
+    By default, the 'core' and 'inspect' modules are enabled.
     All other modules must be explicitly enabled via MCP_ENABLE_TOOLS.
 
     Environment variable:
